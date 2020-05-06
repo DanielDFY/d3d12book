@@ -7,13 +7,13 @@ Sample code and my exercise solutions for the book "Introduction to 3D Game Prog
 ## Samples
 
 * Chapter 01 Vector Algebra
-  * *XMVECTOR*: Sample usage of DirectX math vector
+  * *XMVECTOR* : Sample usage of DirectX math vector
 * Chapter 02 Matrix Algebra
-  * *XMMATRIX*: Sample usage of DirectX math matrix
+  * *XMMATRIX* : Sample usage of DirectX math matrix
 * Chapter 04 Direct3D Initialization
-  * *Init Direct3D*: Sample application framework
+  * *Init Direct3D* : Sample application framework
 * Chapter 06 Drawing in Direct3D 
-  * *Box*: Render a colored box with movable camera (update to Shader Model 5.1)
+  * *Box* : Render a colored box with movable camera (update to Shader Model 5.1)
 * ...
 
 
@@ -21,8 +21,8 @@ Sample code and my exercise solutions for the book "Introduction to 3D Game Prog
 ## Exercises
 
 * Chapter 06 Drawing in Direct3D
-  * [ ] *Exercise 02*
-  * [ ] *Exercise 03*
-  * [ ] *Exercise 07*
-  * [ ] *Exercise 12*
+  * [x] *Exercise_06_02*
+  * [ ] *Exercise_06_03*
+  * [ ] *Exercise_06_07*
+  * [ ] *Exercise_06_12*
 * ...
