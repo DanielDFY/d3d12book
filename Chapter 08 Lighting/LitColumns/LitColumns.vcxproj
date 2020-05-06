@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CA41A537-195E-4958-B149-CEE6399D9618}</ProjectGuid>
+    <ProjectGuid>{8713DCC9-E21C-485A-99E5-B8D1E5AD91B6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Blur</RootNamespace>
+    <RootNamespace>LitColumns</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -148,10 +148,8 @@
     <ClCompile Include="..\..\Common\GameTimer.cpp" />
     <ClCompile Include="..\..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\..\Common\MathHelper.cpp" />
-    <ClCompile Include="BlurApp.cpp" />
-    <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="FrameResource.cpp" />
-    <ClCompile Include="Waves.cpp" />
+    <ClCompile Include="LitColumnsApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h" />
@@ -162,9 +160,7 @@
     <ClInclude Include="..\..\Common\GeometryGenerator.h" />
     <ClInclude Include="..\..\Common\MathHelper.h" />
     <ClInclude Include="..\..\Common\UploadBuffer.h" />
-    <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="FrameResource.h" />
-    <ClInclude Include="Waves.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
