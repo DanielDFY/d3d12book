@@ -22,7 +22,14 @@ Sample code and my exercise solutions for the book "Introduction to 3D Game Prog
 
 * Chapter 06 Drawing in Direct3D
   * [x] *Exercise_06_02*
-  * [ ] *Exercise_06_03*
+
+    > Now vertex position and color data are separated into two structures, towards different input slot. Therefore, some *Common* data structure and functions need to be modified (affected files are separated in directory *Common modified*). And there should be two vertex data buffers for position and color.
+
+  * [x] *Exercise_06_03*
+
+    > Draw point list, line strip, line list, triangle strip, triangle list in the same scene. To draw different primitives, create pipeline state objects (PSOs) for point, line, triangle respectively during initialization. Then before each draw call, set proper PSO and primitive topology argument.
+
   * [ ] *Exercise_06_07*
+  
   * [ ] *Exercise_06_12*
 * ...

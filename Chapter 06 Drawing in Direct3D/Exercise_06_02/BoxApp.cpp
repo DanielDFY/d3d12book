@@ -8,11 +8,11 @@
 //   Hold the right mouse button down and move the mouse to zoom in and out.
 //***************************************************************************************
 
-// Exercise_06_02 ExerciseApp.cpp by DanielDFY
+// Exercise_06_02 modif BoxApp.cpp by DanielDFY
 
-#include "Common overwrite/d3dApp.h"
+#include "Common modified//d3dApp.h"
 #include "../../Common/MathHelper.h"
-#include "Common overwrite/UploadBuffer.h"
+#include "Common modified//UploadBuffer.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;

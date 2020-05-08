@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Common\d3dApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\d3dUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Common\GameTimer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\MathHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BoxApp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Common modified\d3dApp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Common modified\d3dUtil.cpp">
+    <ClCompile Include="PrimitivesApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Common\d3dApp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\d3dUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Common\GameTimer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\MathHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Common modified\d3dApp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Common modified\d3dUtil.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Common modified\UploadBuffer.h">
+    <ClInclude Include="..\..\Common\UploadBuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
