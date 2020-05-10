@@ -31,18 +31,18 @@ struct Vertex
 // Input slot 0
 struct VertexPosData
 {
-    XMFLOAT3 Pos;
+    XMFLOAT3 pos;
 };
 
 // Input slot 1
 struct VertexColorData
 {
-    XMFLOAT4 Color;
+    XMFLOAT4 color;
 };
 
 struct ObjectConstants
 {
-    XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+    XMFLOAT4X4 worldViewProj = MathHelper::Identity4x4();
 };
 
 class BoxApp : public D3DApp {
@@ -71,7 +71,6 @@ private:
     void BuildPSO();
 
 private:
-
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
@@ -79,8 +78,8 @@ private:
 
     std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
 
-    ComPtr<ID3DBlob> mvsByteCode = nullptr;
-    ComPtr<ID3DBlob> mpsByteCode = nullptr;
+    ComPtr<ID3DBlob> mVsByteCode = nullptr;
+    ComPtr<ID3DBlob> mPsByteCode = nullptr;
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
@@ -177,7 +176,7 @@ void BoxApp::Update(const GameTimer& gt) {
 
     // Update the constant buffer with the latest worldViewProj matrix.
     ObjectConstants objConstants;
-    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    XMStoreFloat4x4(&objConstants.worldViewProj, XMMatrixTranspose(worldViewProj));
     mObjectCB->CopyData(0, objConstants);
 }
 
@@ -356,8 +355,8 @@ void BoxApp::BuildShadersAndInputLayout() {
     // mpsByteCode = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_1");
 
     // offline compilation (use FXC tool to compile HLSL shader)
-    mvsByteCode = d3dUtil::LoadBinary(L"Shaders/color_vs.cso");
-    mpsByteCode = d3dUtil::LoadBinary(L"Shaders/color_ps.cso");
+    mVsByteCode = d3dUtil::LoadBinary(L"Shaders/color_vs.cso");
+    mPsByteCode = d3dUtil::LoadBinary(L"Shaders/color_ps.cso");
 
     mInputLayout =
     {
@@ -483,13 +482,13 @@ void BoxApp::BuildPSO() {
     psoDesc.pRootSignature = mRootSignature.Get();
     psoDesc.VS =
     {
-        reinterpret_cast<BYTE*>(mvsByteCode->GetBufferPointer()),
-        mvsByteCode->GetBufferSize()
+        reinterpret_cast<BYTE*>(mVsByteCode->GetBufferPointer()),
+        mVsByteCode->GetBufferSize()
     };
     psoDesc.PS =
     {
-        reinterpret_cast<BYTE*>(mpsByteCode->GetBufferPointer()),
-        mpsByteCode->GetBufferSize()
+        reinterpret_cast<BYTE*>(mPsByteCode->GetBufferPointer()),
+        mPsByteCode->GetBufferSize()
     };
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

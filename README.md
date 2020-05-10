@@ -29,7 +29,9 @@ Sample code and my exercise solutions for the book "Introduction to 3D Game Prog
 
     > Draw point list, line strip, line list, triangle strip, triangle list in the same scene. To draw different primitives, create pipeline state objects (PSOs) for point, line, triangle respectively during initialization. Then before each draw call, set proper PSO and primitive topology argument.
 
-  * [ ] *Exercise_06_07*
+  * [x] *Exercise_06_07*
+  
+    > Draw a box and a pyramid one-by-one with merged vertex and index buffer in the same scene. Similar to exercise *Exercise_06_03*. Also implement color changing by adding a `gTime` constant buffer variable mentioned in *Exercise_06_06*.
   
   * [ ] *Exercise_06_12*
 * ...

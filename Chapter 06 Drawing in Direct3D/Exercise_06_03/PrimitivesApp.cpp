@@ -1,7 +1,7 @@
 ﻿//***************************************************************************************
 // Exercise_06_03 PrimitivesApp.cpp by DanielDFY.
 //
-// Draw vertices specified by different primitive topologies
+// Draw vertices specified by different primitive topologies.
 //
 // Controls:
 //   Hold the left mouse button down and move the mouse to rotate.
@@ -17,12 +17,12 @@ using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 struct Vertex {
-    XMFLOAT3 Pos;
-    XMFLOAT4 Color;
+    XMFLOAT3 pos;
+    XMFLOAT4 color;
 };
 
 struct ObjectConstants {
-    XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+    XMFLOAT4X4 worldViewProj;
 };
 
 class PrimitivesApp : public D3DApp {
@@ -32,16 +32,16 @@ public:
     PrimitivesApp& operator=(const PrimitivesApp& rhs) = delete;
     ~PrimitivesApp();
 
-    virtual bool Initialize()override;
+    bool Initialize() override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+    void OnResize() override;
+    void Update(const GameTimer& gt) override;
+    void Draw(const GameTimer& gt) override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    void OnMouseDown(WPARAM btnState, int x, int y) override;
+    void OnMouseUp(WPARAM btnState, int x, int y) override;
+    void OnMouseMove(WPARAM btnState, int x, int y) override;
 
     void BuildDescriptorHeaps();
     void BuildConstantBuffers();
@@ -51,7 +51,6 @@ private:
     void BuildPSOs();
 
 private:
-
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
@@ -59,8 +58,8 @@ private:
 
     std::unique_ptr<MeshGeometry> mPrimitivesGeo = nullptr;
 
-    ComPtr<ID3DBlob> mvsByteCode = nullptr;
-    ComPtr<ID3DBlob> mpsByteCode = nullptr;
+    ComPtr<ID3DBlob> mVsByteCode = nullptr;
+    ComPtr<ID3DBlob> mPsByteCode = nullptr;
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
@@ -120,8 +119,8 @@ bool PrimitivesApp::Initialize() {
 
     // Execute the initialization commands.
     ThrowIfFailed(mCommandList->Close());
-    ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+    ID3D12CommandList* const cmdLists[] = { mCommandList.Get() };
+    mCommandQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
     // Wait until initialization is complete.
     FlushCommandQueue();
@@ -139,25 +138,25 @@ void PrimitivesApp::OnResize() {
 
 void PrimitivesApp::Update(const GameTimer& gt) {
     // Convert Spherical to Cartesian coordinates.
-    float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    float y = mRadius * cosf(mPhi);
+    const float x = mRadius * sinf(mPhi) * cosf(mTheta);
+    const float z = mRadius * sinf(mPhi) * sinf(mTheta);
+    const float y = mRadius * cosf(mPhi);
 
     // Build the view matrix.
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    const XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+    const XMVECTOR target = XMVectorZero();
+    const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+    const XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, view);
 
-    XMMATRIX world = XMLoadFloat4x4(&mWorld);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
-    XMMATRIX worldViewProj = world * view * proj;
+    const XMMATRIX world = XMLoadFloat4x4(&mWorld);
+    const XMMATRIX proj = XMLoadFloat4x4(&mProj);
+    const XMMATRIX worldViewProj = world * view * proj;
 
     // Update the constant buffer with the latest worldViewProj matrix.
     ObjectConstants objConstants;
-    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    XMStoreFloat4x4(&objConstants.worldViewProj, XMMatrixTranspose(worldViewProj));
     mObjectCB->CopyData(0, objConstants);
 }
 
@@ -184,14 +183,16 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
     // Specify the buffers we are going to render to.
     mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
+    // Set descriptor heaps for constant buffer.
     ID3D12DescriptorHeap* descriptorHeaps[] = { mCbvHeap.Get() };
     mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
+    // Set root signature and descriptor table to bind resources to the rendering pipeline.
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
     mCommandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	// Draw point list
+	// Draw point list.
     mCommandList->IASetVertexBuffers(0, 1, &mPrimitivesGeo->VertexBufferView());
     mCommandList->IASetIndexBuffer(&mPrimitivesGeo->IndexBufferView());
     mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -203,7 +204,7 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
         mPrimitivesGeo->DrawArgs["pointList"].BaseVertexLocation, 
         0);
 
-    // Draw line strip
+    // Draw line strip.
     mCommandList->SetPipelineState(mPSOs["line"].Get());
     mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
@@ -214,7 +215,7 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
         mPrimitivesGeo->DrawArgs["lineStrip"].BaseVertexLocation,
         0);
 
-    // Draw line list
+    // Draw line list.
     mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
     mCommandList->DrawIndexedInstanced(
@@ -224,7 +225,7 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
         mPrimitivesGeo->DrawArgs["lineList"].BaseVertexLocation,
         0);
 
-    // Draw triangle strip
+    // Draw triangle strip.
     mCommandList->SetPipelineState(mPSOs["triangle"].Get());
     mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -235,7 +236,7 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
         mPrimitivesGeo->DrawArgs["triangleStrip"].BaseVertexLocation,
         0);
 
-    // Draw triangle list
+    // Draw triangle list.
     mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     mCommandList->DrawIndexedInstanced(
@@ -253,10 +254,10 @@ void PrimitivesApp::Draw(const GameTimer& gt) {
     ThrowIfFailed(mCommandList->Close());
 
     // Add the command list to the queue for execution.
-    ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+    ID3D12CommandList* const cmdLists[] = { mCommandList.Get() };
+    mCommandQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
-    // swap the back and front buffers
+    // swap the back and front buffers.
     ThrowIfFailed(mSwapChain->Present(0, 0));
     mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
@@ -280,8 +281,8 @@ void PrimitivesApp::OnMouseUp(WPARAM btnState, int x, int y) {
 void PrimitivesApp::OnMouseMove(WPARAM btnState, int x, int y) {
     if ((btnState & MK_LBUTTON) != 0) {
         // Make each pixel correspond to a quarter of a degree.
-        float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-        float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+        const float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+        const float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
 
         // Update angles based on input to orbit camera around box.
         mTheta -= dx;
@@ -292,8 +293,8 @@ void PrimitivesApp::OnMouseMove(WPARAM btnState, int x, int y) {
     }
     else if ((btnState & MK_RBUTTON) != 0) {
         // Make each pixel correspond to 0.005 unit in the scene.
-        float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
+        const float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
+        const float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
 
         // Update the camera radius based on input.
         mRadius += dx - dy;
@@ -312,27 +313,24 @@ void PrimitivesApp::BuildDescriptorHeaps() {
     cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     cbvHeapDesc.NodeMask = 0;
-    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&cbvHeapDesc,
-        IID_PPV_ARGS(&mCbvHeap)));
+    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)));
 }
 
 void PrimitivesApp::BuildConstantBuffers() {
     mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
 
-    UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    const UINT objCbByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
+    const D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
     // Offset to the ith object constant buffer in the buffer.
-    long long boxCBufIndex = 0;
-    cbAddress += boxCBufIndex * static_cast<long long>(objCBByteSize);
+    // const long long boxCbIndex = 0;
+    // cbAddress += boxCbIndex * static_cast<long long>(objCbByteSize);
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
     cbvDesc.BufferLocation = cbAddress;
-    cbvDesc.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    cbvDesc.SizeInBytes = objCbByteSize;
 
-    md3dDevice->CreateConstantBufferView(
-        &cbvDesc,
-        mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    md3dDevice->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void PrimitivesApp::BuildRootSignature() {
@@ -354,7 +352,7 @@ void PrimitivesApp::BuildRootSignature() {
     CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr,
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    // Create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
     HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
@@ -373,27 +371,23 @@ void PrimitivesApp::BuildRootSignature() {
 }
 
 void PrimitivesApp::BuildShadersAndInputLayout() {
-    HRESULT hr = S_OK;
-
-    // runtime compilation
+    // Runtime compilation
     // mvsByteCode = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_1");
     // mpsByteCode = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_1");
 
-    // offline compilation (use FXC tool to compile HLSL shader)
-    mvsByteCode = d3dUtil::LoadBinary(L"Shaders/color_vs.cso");
-    mpsByteCode = d3dUtil::LoadBinary(L"Shaders/color_ps.cso");
+    // Offline compilation (use FXC tool to compile HLSL shader)
+    mVsByteCode = d3dUtil::LoadBinary(L"Shaders/color_vs.cso");
+    mPsByteCode = d3dUtil::LoadBinary(L"Shaders/color_ps.cso");
 
-    mInputLayout =
-    {
+    mInputLayout = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 }
 
 void PrimitivesApp::BuildPrimitivesGeometry() {
-    std::array<Vertex, 41> vertices =
-    {
-    	// point list
+    std::array<Vertex, 41> vertices = {
+    	// Point list
         Vertex({ XMFLOAT3(-4.0f, -2.0f, -2.0f), XMFLOAT4(Colors::White) }),
         Vertex({ XMFLOAT3(-3.0f, +1.0f, -2.0f), XMFLOAT4(Colors::Black) }),
         Vertex({ XMFLOAT3(-2.0f, -1.0f, -2.0f), XMFLOAT4(Colors::Red) }),
@@ -403,7 +397,7 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
         Vertex({ XMFLOAT3(+2.0f, -0.2f, -2.0f), XMFLOAT4(Colors::Cyan) }),
         Vertex({ XMFLOAT3(+4.0f, +2.0f, -2.0f), XMFLOAT4(Colors::Magenta) }),
 
-        // line strip
+        // Line strip
         Vertex({ XMFLOAT3(-4.0f, -2.0f, -1.0f), XMFLOAT4(Colors::White) }),
         Vertex({ XMFLOAT3(-3.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
         Vertex({ XMFLOAT3(-2.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
@@ -413,7 +407,7 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
         Vertex({ XMFLOAT3(+2.0f, -0.2f, -1.0f), XMFLOAT4(Colors::Cyan) }),
         Vertex({ XMFLOAT3(+4.0f, +2.0f, -1.0f), XMFLOAT4(Colors::Magenta) }),
 
-        // line list
+        // Line list
         Vertex({ XMFLOAT3(-4.0f, -2.0f, +0.0f), XMFLOAT4(Colors::White) }),
         Vertex({ XMFLOAT3(-3.0f, +1.0f, +0.0f), XMFLOAT4(Colors::Black) }),
         Vertex({ XMFLOAT3(-2.0f, -1.0f, +0.0f), XMFLOAT4(Colors::Red) }),
@@ -423,7 +417,7 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
         Vertex({ XMFLOAT3(+2.0f, -0.2f, +0.0f), XMFLOAT4(Colors::Cyan) }),
         Vertex({ XMFLOAT3(+4.0f, +2.0f, +0.0f), XMFLOAT4(Colors::Magenta) }),
 
-        // triangle strip
+        // Triangle strip
         Vertex({ XMFLOAT3(-4.0f, -2.0f, +1.0f), XMFLOAT4(Colors::White) }),
         Vertex({ XMFLOAT3(-3.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Black) }),
         Vertex({ XMFLOAT3(-2.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Red) }),
@@ -433,7 +427,7 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
         Vertex({ XMFLOAT3(+2.0f, -0.2f, +1.0f), XMFLOAT4(Colors::Cyan) }),
         Vertex({ XMFLOAT3(+4.0f, +2.0f, +1.0f), XMFLOAT4(Colors::Magenta) }),
 
-        // triangle list
+        // Triangle list
         Vertex({ XMFLOAT3(-4.0f, -2.0f, +2.0f), XMFLOAT4(Colors::White) }),
         Vertex({ XMFLOAT3(-3.0f, +1.0f, +2.0f), XMFLOAT4(Colors::Black) }),
         Vertex({ XMFLOAT3(-2.0f, -1.0f, +2.0f), XMFLOAT4(Colors::Red) }),
@@ -447,19 +441,19 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
 
     std::array<std::uint16_t, 41> indices =
     {
-        // point list
+        // Point list
         0, 1, 2, 3, 4, 5, 6, 7,
 
-        // line strip
+        // Line strip
         0, 1, 2, 3, 4, 5, 6, 7,
 
-        // line list
+        // Line list
         0, 1, 2, 3, 4, 5, 6, 7,
 
-        // triangle strip
+        // Triangle strip
         0, 1, 2, 3, 4, 5, 6, 7,
 
-        // triangle list
+        // Triangle list
         0, 1, 2, 3, 5, 4, 6, 7, 8
     };
 
@@ -469,6 +463,7 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
     mPrimitivesGeo = std::make_unique<MeshGeometry>();
     mPrimitivesGeo->Name = "primitivesGeo";
 
+    // Copy vertex and index data to GPU
     ThrowIfFailed(D3DCreateBlob(vbByteSize, &mPrimitivesGeo->VertexBufferCPU));
     CopyMemory(mPrimitivesGeo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
@@ -486,35 +481,38 @@ void PrimitivesApp::BuildPrimitivesGeometry() {
     mPrimitivesGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
     mPrimitivesGeo->IndexBufferByteSize = ibByteSize;
 
-	// point list
+    // Defines a sub-range of geometry in a MeshGeometry. This is for when
+    // multiple geometries are stored in one vertex and index buffer.
+	
+	// Point list
     SubmeshGeometry pointListGeo;
     pointListGeo.IndexCount = 8;
     pointListGeo.StartIndexLocation = 0;
     pointListGeo.BaseVertexLocation = 0;
     mPrimitivesGeo->DrawArgs["pointList"] = pointListGeo;
 
-	// line strip
+	// Line strip
     SubmeshGeometry lineStripGeo;
     lineStripGeo.IndexCount = 8;
     lineStripGeo.StartIndexLocation = 8;
     lineStripGeo.BaseVertexLocation = 8;
     mPrimitivesGeo->DrawArgs["lineStrip"] = lineStripGeo;
 
-	// line list
+	// Line list
     SubmeshGeometry lineListGeo;
     lineListGeo.IndexCount = 8;
     lineListGeo.StartIndexLocation = 16;
     lineListGeo.BaseVertexLocation = 16;
     mPrimitivesGeo->DrawArgs["lineList"] = lineListGeo;
 
-	// triangle strip
+	// Triangle strip
     SubmeshGeometry triangleStripGeo;
     triangleStripGeo.IndexCount = 8;
     triangleStripGeo.StartIndexLocation = 24;
     triangleStripGeo.BaseVertexLocation = 24;
     mPrimitivesGeo->DrawArgs["triangleStrip"] = triangleStripGeo;
 
-	// triangle list
+	// Triangle list
     SubmeshGeometry triangleListGeo;
     triangleListGeo.IndexCount = 9;
     triangleListGeo.StartIndexLocation = 32;
@@ -528,15 +526,13 @@ void PrimitivesApp::BuildPSOs() {
     ZeroMemory(&pointPSODesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
     pointPSODesc.InputLayout = { mInputLayout.data(), static_cast<UINT>(mInputLayout.size()) };
     pointPSODesc.pRootSignature = mRootSignature.Get();
-    pointPSODesc.VS =
-    {
-        reinterpret_cast<BYTE*>(mvsByteCode->GetBufferPointer()),
-        mvsByteCode->GetBufferSize()
+    pointPSODesc.VS = {
+        reinterpret_cast<BYTE*>(mVsByteCode->GetBufferPointer()),
+        mVsByteCode->GetBufferSize()
     };
-    pointPSODesc.PS =
-    {
-        reinterpret_cast<BYTE*>(mpsByteCode->GetBufferPointer()),
-        mpsByteCode->GetBufferSize()
+    pointPSODesc.PS = {
+        reinterpret_cast<BYTE*>(mPsByteCode->GetBufferPointer()),
+        mPsByteCode->GetBufferSize()
     };
     pointPSODesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pointPSODesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -551,12 +547,12 @@ void PrimitivesApp::BuildPSOs() {
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&pointPSODesc, IID_PPV_ARGS(&mPSOs["point"])));
 
 	// create line PSO
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC linePSODesc = pointPSODesc;  // copy
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC linePSODesc = pointPSODesc;  // copy to reuse most settings
     pointPSODesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&linePSODesc, IID_PPV_ARGS(&mPSOs["line"])));
 
     // create triangle PSO
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC trianglePSODesc = pointPSODesc;  // copy
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC trianglePSODesc = pointPSODesc;  // copy to reuse most settings
     pointPSODesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&trianglePSODesc, IID_PPV_ARGS(&mPSOs["triangle"])));
 }
