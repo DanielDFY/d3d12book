@@ -33,5 +33,9 @@ Sample code and my exercise solutions for the book "Introduction to 3D Game Prog
   
     > Draw a box and a pyramid one-by-one with merged vertex and index buffer in the same scene. Similar to exercise *Exercise_06_03*. Also implement color changing by adding a `gTime` constant buffer variable mentioned in *Exercise_06_06*.
   
-  * [ ] *Exercise_06_12*
+* Chapter 07 Drawing in Direct3D Part II
+
+  * ...
+
 * ...
+
