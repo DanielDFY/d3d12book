@@ -42,7 +42,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   
 * Chapter 07 Drawing in Direct3D Part II
 
-  * [ ] *Exercise_07_02*
+  * [x] *Exercise_07_02*
 
     > Modify the *Shapes* demo to use sixteen root constants to set the per-object world matrix instead of a descriptor table. Now we only need constant buffer views (CBVs) for each frame. The root signature and resource binding before drawcall should be modified, as well as the world matrix struct in shader file. 
 
