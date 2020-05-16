@@ -54,7 +54,7 @@ private:
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
-    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCb = nullptr;
 
     std::unique_ptr<MeshGeometry> mPrimitivesGeo = nullptr;
 
@@ -157,7 +157,7 @@ void PrimitivesApp::Update(const GameTimer& gt) {
     // Update the constant buffer with the latest worldViewProj matrix.
     ObjectConstants objConstants;
     XMStoreFloat4x4(&objConstants.worldViewProj, XMMatrixTranspose(worldViewProj));
-    mObjectCB->CopyData(0, objConstants);
+    mObjectCb->CopyData(0, objConstants);
 }
 
 void PrimitivesApp::Draw(const GameTimer& gt) {
@@ -317,11 +317,11 @@ void PrimitivesApp::BuildDescriptorHeaps() {
 }
 
 void PrimitivesApp::BuildConstantBuffers() {
-    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
+    mObjectCb = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
 
     const UINT objCbByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-    const D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
+    const D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCb->Resource()->GetGPUVirtualAddress();
     // Offset to the ith object constant buffer in the buffer.
     // const long long boxCbIndex = 0;
     // cbAddress += boxCbIndex * static_cast<long long>(objCbByteSize);
@@ -359,7 +359,7 @@ void PrimitivesApp::BuildRootSignature() {
         serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
     if (errorBlob != nullptr) {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+        ::OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
     }
     ThrowIfFailed(hr);
 

@@ -6,13 +6,6 @@
 
 // Update to Shader Model 5.1
 
-/*
-cbuffer cbPerObject : register(b0)
-{
-	float4x4 gWorldViewProj; 
-};
-*/
-
 struct ObjectConstants 
 {
 	float4x4 gWorldViewProj;

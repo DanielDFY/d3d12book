@@ -8,7 +8,7 @@
 //   Hold the right mouse button down and move the mouse to zoom in and out.
 //***************************************************************************************
 
-// Exercise_06_02 modif BoxApp.cpp by DanielDFY
+// Exercise_06_02 BoxApp.cpp modified by DanielDFY
 
 #include "Common modified//d3dApp.h"
 #include "../../Common/MathHelper.h"
@@ -74,7 +74,7 @@ private:
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
-    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCb = nullptr;
 
     std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
 
@@ -152,32 +152,32 @@ void BoxApp::OnResize() {
     D3DApp::OnResize();
 
     // The window resized, so update the aspect ratio and recompute the projection matrix.
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
+    const XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 }
 
 void BoxApp::Update(const GameTimer& gt) {
     // Convert Spherical to Cartesian coordinates.
-    float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    float y = mRadius * cosf(mPhi);
+    const float x = mRadius * sinf(mPhi) * cosf(mTheta);
+    const float z = mRadius * sinf(mPhi) * sinf(mTheta);
+    const float y = mRadius * cosf(mPhi);
 
     // Build the view matrix.
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    const XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+    const XMVECTOR target = XMVectorZero();
+    const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+    const XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, view);
 
-    XMMATRIX world = XMLoadFloat4x4(&mWorld);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
-    XMMATRIX worldViewProj = world * view * proj;
+    const XMMATRIX world = XMLoadFloat4x4(&mWorld);
+    const XMMATRIX proj = XMLoadFloat4x4(&mProj);
+    const XMMATRIX worldViewProj = world * view * proj;
 
     // Update the constant buffer with the latest worldViewProj matrix.
     ObjectConstants objConstants;
     XMStoreFloat4x4(&objConstants.worldViewProj, XMMatrixTranspose(worldViewProj));
-    mObjectCB->CopyData(0, objConstants);
+    mObjectCb->CopyData(0, objConstants);
 }
 
 void BoxApp::Draw(const GameTimer& gt) {
@@ -255,8 +255,8 @@ void BoxApp::OnMouseUp(WPARAM btnState, int x, int y) {
 void BoxApp::OnMouseMove(WPARAM btnState, int x, int y) {
     if ((btnState & MK_LBUTTON) != 0) {
         // Make each pixel correspond to a quarter of a degree.
-        float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-        float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+        const float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+        const float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
 
         // Update angles based on input to orbit camera around box.
         mTheta += dx;
@@ -267,8 +267,8 @@ void BoxApp::OnMouseMove(WPARAM btnState, int x, int y) {
     }
     else if ((btnState & MK_RBUTTON) != 0) {
         // Make each pixel correspond to 0.005 unit in the scene.
-        float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
+        const float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
+        const float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
 
         // Update the camera radius based on input.
         mRadius += dx - dy;
@@ -292,13 +292,13 @@ void BoxApp::BuildDescriptorHeaps() {
 }
 
 void BoxApp::BuildConstantBuffers() {
-    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
+    mObjectCb = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
 
-    UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    const UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
+    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCb->Resource()->GetGPUVirtualAddress();
     // Offset to the ith object constant buffer in the buffer.
-    long long boxCBufIndex = 0;
+    const long long boxCBufIndex = 0;
     cbAddress += boxCBufIndex * static_cast<long long>(objCBByteSize);
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
@@ -332,11 +332,11 @@ void BoxApp::BuildRootSignature() {
     // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+    const HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
         serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
     if (errorBlob != nullptr) {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+        ::OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
     }
     ThrowIfFailed(hr);
 
