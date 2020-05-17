@@ -19,8 +19,11 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 06 Drawing in Direct3D 
   * *Box* : Render a colored box with movable camera.
 * Chapter 07 Drawing in Direct3D Part II
-  * *Shapes*：Render a scene composed of spheres, cylinders, a box and a grid.
-  * *Land and Waves*:  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes (update to Shader Model 5.1).
+  * *Shapes* ：Render a scene composed of spheres, cylinders, a box and a grid.
+  * *Land and Waves* :  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes (update to Shader Model 5.1).
+* Chapter 08 Lighting
+  * *LitColumns* : ...
+  * *LitWaves* : ...
 * ...
 
 
@@ -46,9 +49,13 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the *Shapes* demo to use sixteen root constants to set the per-object world matrix instead of a descriptor table. Now we only need constant buffer views (CBVs) for each frame. The root signature and resource binding before drawcall should be modified, as well as the world matrix struct in shader file. 
 
-  * [ ] *Exercise_07_03*
+  * [x] *Exercise_07_03*
 
-    > Render a skull model. The vertex and index lists needed are in *Model/skull.txt*.
+    > Render a skull model above a platform. The vertex and index lists needed are in *Model/skull.txt*. The color of each vertex on the skull is based on the normal of the vertex. Note that the index count of skull is over 65536, which means we need to change `uint16_t` into `uint32_t`.
+
+* Chapter 08 Lighting
+
+  * [ ] ...
 
 * ...
 
