@@ -20,7 +20,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *Box* : Render a colored box with movable camera.
 * Chapter 07 Drawing in Direct3D Part II
   * *Shapes* ：Render a scene composed of spheres, cylinders, a box and a grid.
-  * *Land and Waves* :  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes (update to Shader Model 5.1).
+  * *Land and Waves* :  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes.
 * Chapter 08 Lighting
   * *LitColumns* : ...
   * *LitWaves* : ...
