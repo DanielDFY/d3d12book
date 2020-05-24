@@ -66,16 +66,10 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * [ ] *Exercise_08_06*
 
     > Modify the *LitWaves* demo to use the sort of cartoon shading as follows:
-    
-    > <br>
     >
-    > <img src=".\Chapter 08 Lighting\Exercise_08_06\cartoon shading function.png" alt="cartoon shading function" style="zoom:75%;" align="left"/>
+    > ![cartoon shading function](.\Chapter 08 Lighting\Exercise_08_06\cartoon shading function.png)
     >
-    > <br>
-    
     > (Note: The functions f and g above are just sample functions to start with, and can be tweaked until we get the results we want.)
-    
-    
 
 * ...
 
