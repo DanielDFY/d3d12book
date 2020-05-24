@@ -22,8 +22,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *Shapes* ：Render a scene composed of spheres, cylinders, a box and a grid.
   * *Land and Waves* :  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes.
 * Chapter 08 Lighting
-  * *LitColumns* : ...
-  * *LitWaves* : ...
+  * *LitWaves* : This demo is based on the *Land and Waves* demo from the previous chapter. It uses one directional light to represent the sun. The user can rotate the sun position using the left, right, up, and down arrow keys. 
+  * *LitColumns* : This demo is based on the *Shapes* demo from the previous chapter, adding materials and a three-point lighting system.
 * ...
 
 
@@ -55,7 +55,19 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 08 Lighting
 
-  * [ ] ...
+  * [x] *Exercise_08_01*
+
+    > Modify the *LitWaves* demo so that the directional light only emits mostly red light. In addition, make the strength of the light oscillate as a function of time using the sine function so that the light appears to pulse. Also change the roughness in the materials as the same way.
+    
+  * [ ] *Exercise_08_04*
+
+    > Modify the *LitColumns* demo by removing the three-point lighting, adding a point centered about each sphere above the columns, and adding a spotlight centered about each sphere above the columns and aiming down.
+
+  * [ ] *Exercise_08_06*
+
+    > Modify the *LitWaves* demo to use the sort of cartoon shading as follows:
+  >
+    > <img src="E:\Github\d3d12book\Chapter 08 Lighting\Exercise_08_06\cartoon shading function.png" alt="cartoon shading function" style="zoom:75%;" align="left"/>
 
 * ...
 

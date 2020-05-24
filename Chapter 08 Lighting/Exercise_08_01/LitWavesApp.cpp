@@ -5,6 +5,8 @@
 //
 //***************************************************************************************
 
+// Exercise_08_01 LitWavesApp.cpp modified by DanielDFY
+
 #include "../../Common/d3dApp.h"
 #include "../../Common/MathHelper.h"
 #include "../../Common/UploadBuffer.h"
@@ -69,16 +71,16 @@ public:
     LitWavesApp& operator=(const LitWavesApp& rhs) = delete;
     ~LitWavesApp();
 
-    virtual bool Initialize()override;
+    bool Initialize() override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+    void OnResize() override;
+    void Update(const GameTimer& gt) override;
+    void Draw(const GameTimer& gt) override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    void OnMouseDown(WPARAM btnState, int x, int y) override;
+    void OnMouseUp(WPARAM btnState, int x, int y) override;
+    void OnMouseMove(WPARAM btnState, int x, int y) override;
 
 	void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
@@ -97,11 +99,10 @@ private:
     void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
-    float GetHillsHeight(float x, float z)const;
-    XMFLOAT3 GetHillsNormal(float x, float z)const;
+    float GetHillsHeight(float x, float z) const;
+    XMFLOAT3 GetHillsNormal(float x, float z) const;
 
 private:
-
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
@@ -422,12 +423,23 @@ void LitWavesApp::UpdateMaterialCBs(const GameTimer& gt)
 			MaterialConstants matConstants;
 			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
 			matConstants.FresnelR0 = mat->FresnelR0;
+			
+			// Modify: Now make the roughness of each material oscillate as a function of
+			//         time using the sine function so that the roughness appears to pulse.
+			
+			/*
 			matConstants.Roughness = mat->Roughness;
+			*/
+			matConstants.Roughness = mat->Roughness + 0.6f * abs(sinf(mMainPassCB.TotalTime * 0.5f));
 
 			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 
 			// Next FrameResource need to be updated too.
+
+			// update material in each frame for this app.
+			/*
 			mat->NumFramesDirty--;
+			*/
 		}
 	}
 }
@@ -460,7 +472,13 @@ void LitWavesApp::UpdateMainPassCB(const GameTimer& gt)
 	XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 
 	XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
+	// Modify: Now make the strength of the light oscillate as a function of
+	//         time using the sine function so that the light appears to pulse.
+
+	/*
 	mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+	 */
+	mMainPassCB.Lights[0].Strength = { 0.5f + 2.0f * abs(sinf(mMainPassCB.TotalTime)), 0.5f , 0.5f};
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
