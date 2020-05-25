@@ -59,9 +59,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the *LitWaves* demo so that the directional light only emits mostly red light. In addition, make the strength of the light oscillate as a function of time using the sine function so that the light appears to pulse. Also change the roughness in the materials as the same way.
     
-  * [ ] *Exercise_08_04*
+  * [x] *Exercise_08_04*
 
-    > Modify the *LitColumns* demo by removing the three-point lighting, adding a point centered about each sphere above the columns, and adding a spotlight centered about each sphere above the columns and aiming down.
+    > Modify the *LitColumns* demo by removing the three-point lighting, adding a point centered about each sphere above the columns, or adding a spotlight centered about each sphere above the columns and aiming down. Press "1" to switch between these two mode. 
 
   * [ ] *Exercise_08_06*
 

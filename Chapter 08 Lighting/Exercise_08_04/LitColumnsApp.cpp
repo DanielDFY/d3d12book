@@ -2,6 +2,8 @@
 // LitColumnsApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
+// Exercise_08_04 LitColumnsApp.cpp modified by DanielDFY
+
 #include "../../Common/d3dApp.h"
 #include "../../Common/MathHelper.h"
 #include "../../Common/UploadBuffer.h"
@@ -57,16 +59,16 @@ public:
 	LitColumnsApp& operator=(const LitColumnsApp& rhs) = delete;
 	~LitColumnsApp();
 
-	virtual bool Initialize()override;
+	bool Initialize() override;
 
 private:
-	virtual void OnResize()override;
-	virtual void Update(const GameTimer& gt)override;
-	virtual void Draw(const GameTimer& gt)override;
+	void OnResize() override;
+	void Update(const GameTimer& gt) override;
+	void Draw(const GameTimer& gt) override;
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+	void OnMouseDown(WPARAM btnState, int x, int y) override;
+	void OnMouseUp(WPARAM btnState, int x, int y) override;
+	void OnMouseMove(WPARAM btnState, int x, int y) override;
 
 	void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
@@ -123,6 +125,9 @@ private:
 	float mRadius = 15.0f;
 
 	POINT mLastMousePos;
+
+	// Modify: press "1" to display spot light, else point light.
+	bool mIsSpotLight;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -313,6 +318,11 @@ void LitColumnsApp::OnMouseMove(WPARAM btnState, int x, int y) {
 }
 
 void LitColumnsApp::OnKeyboardInput(const GameTimer& gt) {
+	// Modify: press "1" to display spot light, else point light.
+	if (GetAsyncKeyState('1') & 0x8000)
+		mIsSpotLight = true;
+	else
+		mIsSpotLight = false;
 }
 
 void LitColumnsApp::UpdateCamera(const GameTimer& gt) {
@@ -401,12 +411,57 @@ void LitColumnsApp::UpdateMainPassCB(const GameTimer& gt) {
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+
+	// Modify: now removing the three-point lighting, and adding point/spot
+	//         lighting centered about each sphere above the columns
+	/*
 	mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
 	mMainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
 	mMainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
 	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
 	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
 	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+	*/
+	float spotLightFalloffEnd;
+	float pointLightFalloffEnd;
+
+	// Set point/spot light based on current light mode
+	if (mIsSpotLight) {
+		spotLightFalloffEnd = 10.0f;
+		pointLightFalloffEnd = 1.0f;
+	}
+	else {
+		spotLightFalloffEnd = 1.0f;
+		pointLightFalloffEnd = 10.0f;
+	}
+	
+	for (int i = 0; i < 4; ++i) {
+		// Point light sources
+
+		// Left
+		mMainPassCB.Lights[i].Position = { -5.0f, 1.5f, -10.0f + i * 5.0f };
+		mMainPassCB.Lights[i].Strength = { 0.5f, 0.5f, 0.5f };
+		mMainPassCB.Lights[i].FalloffEnd = pointLightFalloffEnd;
+		// Right
+		mMainPassCB.Lights[i + 4].Position = { 5.0f, 1.5f, -10.0f + i * 5.0f };
+		mMainPassCB.Lights[i + 4].Strength = { 0.5f, 0.5f, 0.5f };
+		mMainPassCB.Lights[i + 4].FalloffEnd = pointLightFalloffEnd;
+		
+		// Spot light sources
+		
+		// Left
+		mMainPassCB.Lights[i + 8].Position = { -5.0f, 1.5f, -10.0f + i * 5.0f };
+		mMainPassCB.Lights[i + 8].Strength = { 0.8f, 0.8f, 0.8f };
+		mMainPassCB.Lights[i + 8].Direction = { 0.0f, -1.0f, 0.0f };
+		mMainPassCB.Lights[i + 8].FalloffEnd = spotLightFalloffEnd;
+		mMainPassCB.Lights[i + 8].SpotPower = 5;
+		// Right
+		mMainPassCB.Lights[i + 12].Position = { 5.0f, 1.5f, -10.0f + i * 5.0f };
+		mMainPassCB.Lights[i + 12].Strength = { 0.8f, 0.8f, 0.8f };
+		mMainPassCB.Lights[i + 12].Direction = { 0.0f, -1.0f, 0.0f };
+		mMainPassCB.Lights[i + 12].FalloffEnd = spotLightFalloffEnd;
+		mMainPassCB.Lights[i + 12].SpotPower = 5;
+	}
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
@@ -763,7 +818,7 @@ void LitColumnsApp::BuildRenderItems() {
 
 	XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 	UINT objCBIndex = 3;
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		auto leftCylRitem = std::make_unique<RenderItem>();
 		auto rightCylRitem = std::make_unique<RenderItem>();
 		auto leftSphereRitem = std::make_unique<RenderItem>();

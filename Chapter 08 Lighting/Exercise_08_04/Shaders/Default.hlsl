@@ -4,9 +4,14 @@
 // Default shader, currently supports lighting.
 //***************************************************************************************
 
+// Exercise_08_04 Default.hlsl modified by DanielDFY
+
 // Update to Shader Model 5.1
 
 // Defaults for number of lights.
+// Modify: now remove the three-point lighting and add point/spot
+//         lighting centered about each sphere above the columns
+/*
 #ifndef NUM_DIR_LIGHTS
     #define NUM_DIR_LIGHTS 3
 #endif
@@ -17,6 +22,18 @@
 
 #ifndef NUM_SPOT_LIGHTS
     #define NUM_SPOT_LIGHTS 0
+#endif
+*/
+#ifndef NUM_DIR_LIGHTS
+    #define NUM_DIR_LIGHTS 0
+#endif
+
+#ifndef NUM_POINT_LIGHTS
+    #define NUM_POINT_LIGHTS 8
+#endif
+
+#ifndef NUM_SPOT_LIGHTS
+    #define NUM_SPOT_LIGHTS 8
 #endif
 
 // Include structures and functions for lighting.
