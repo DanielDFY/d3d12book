@@ -24,6 +24,10 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 08 Lighting
   * *LitWaves* : This demo is based on the *Land and Waves* demo from the previous chapter. It uses one directional light to represent the sun. The user can rotate the sun position using the left, right, up, and down arrow keys. 
   * *LitColumns* : This demo is based on the *Shapes* demo from the previous chapter, adding materials and a three-point lighting system.
+* Chapter 09 Texturing
+  * *Crate* : ...
+  * *TexColumns* : ...
+  * *TexWaves* : ...
 * ...
 
 
@@ -63,13 +67,21 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the *LitColumns* demo by removing the three-point lighting, adding a point centered about each sphere above the columns, or adding a spotlight centered about each sphere above the columns and aiming down. Press "1" to switch between these two mode. 
 
-  * [ ] *Exercise_08_06*
+  * [x] *Exercise_08_06*
 
     > Modify the *LitWaves* demo to use the sort of cartoon shading as follows:
     >
     > <img src=".\Chapter 08 Lighting\Exercise_08_06\cartoon shading function.png" alt="cartoon shading function"/>
     >
+    > k<sub>d</sub> for each element in diffuse albedo.
+    >
+    > k<sub>s</sub> for each element in specular albedo.
+    >
     > (Note: The functions f and g above are just sample functions to start with, and can be tweaked until we get the results we want.)
+
+* Chapter 09 Texturing
+
+  * [ ] ...
 
 * ...
 
