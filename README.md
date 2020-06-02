@@ -25,9 +25,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *LitWaves* : This demo is based on the *Land and Waves* demo from the previous chapter. It uses one directional light to represent the sun. The user can rotate the sun position using the left, right, up, and down arrow keys. 
   * *LitColumns* : This demo is based on the *Shapes* demo from the previous chapter, adding materials and a three-point lighting system.
 * Chapter 09 Texturing
-  * *Crate* : ...
-  * *TexColumns* : ...
-  * *TexWaves* : ...
+  * *Crate* : Render a cube with a crate texture.
+  * *TexColumns* : This demo is based on the *LitColumns* demo from the previous chapter, adding textures to the ground, columns and spheres.
+  * *TexWaves* : This demo is based on the *LitWaves* demo from the previous chapter, adding textures to the land and water. Also the water texture scrolls over the water geometry as a function of time.
 * ...
 
 
@@ -81,7 +81,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 09 Texturing
 
-  * [ ] ...
+  * [ ] *Exercise_09_03*
+
+    > Modify the *Crate* demo by combining two source textures in a pixel shader to produce a mixed texture over each cube face, and rotate the mixed texture as a function of time.
 
 * ...
 

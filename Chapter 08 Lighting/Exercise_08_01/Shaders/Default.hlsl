@@ -22,8 +22,7 @@
 // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
 
-// Constant data that varies per frame.
-
+// Constant data that varies per object.
 /*
 cbuffer cbPerObject : register(b0)
 {
@@ -37,6 +36,7 @@ struct ObjectConstants {
 
 ConstantBuffer<ObjectConstants> gObjectConstants : register(b0);
 
+// Constant data that varies per material.
 /*
 cbuffer cbMaterial : register(b1)
 {
@@ -56,7 +56,7 @@ struct MaterialConstants {
 
 ConstantBuffer<MaterialConstants> gMaterialConstants : register(b1);
 
-// Constant data that varies per material.
+// Constant data that varies per frame.
 /*
 cbuffer cbPass : register(b2)
 {
