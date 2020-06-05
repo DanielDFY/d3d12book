@@ -2,6 +2,8 @@
 // CrateApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
+// Exercise_09_03 CrateApp.cpp modified by DanielDFY
+
 #include "../../Common/d3dApp.h"
 #include "../../Common/MathHelper.h"
 #include "../../Common/UploadBuffer.h"
@@ -57,16 +59,16 @@ public:
 	CrateApp& operator=(const CrateApp& rhs) = delete;
 	~CrateApp();
 
-	virtual bool Initialize()override;
+	bool Initialize()override;
 
 private:
-	virtual void OnResize()override;
-	virtual void Update(const GameTimer& gt)override;
-	virtual void Draw(const GameTimer& gt)override;
+	void OnResize()override;
+	void Update(const GameTimer& gt)override;
+	void Draw(const GameTimer& gt)override;
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+	void OnMouseDown(WPARAM btnState, int x, int y)override;
+	void OnMouseUp(WPARAM btnState, int x, int y)override;
+	void OnMouseMove(WPARAM btnState, int x, int y)override;
 
 	void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
@@ -75,6 +77,7 @@ private:
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
 
+	void LoadTexture(std::string texName, std::wstring fileName);
 	void LoadTextures();
 	void BuildRootSignature();
 	void BuildDescriptorHeaps();
@@ -89,7 +92,6 @@ private:
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 private:
-
 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
 	FrameResource* mCurrFrameResource = nullptr;
 	int mCurrFrameResourceIndex = 0;
@@ -167,7 +169,6 @@ bool CrateApp::Initialize() {
 	// Get the increment size of a descriptor in this heap type.  This is hardware specific, 
 	// so we have to query this information.
 	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
 
 	LoadTextures();
 	BuildRootSignature();
@@ -420,7 +421,21 @@ void CrateApp::UpdateMainPassCB(const GameTimer& gt) {
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
+void CrateApp::LoadTexture(std::string texName, std::wstring fileName) {
+	auto tex = std::make_unique<Texture>();
+	tex->Name = std::move(texName);
+	tex->Filename = std::move(fileName);
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), tex->Filename.c_str(),
+		tex->Resource, tex->UploadHeap));
+
+	mTextures[tex->Name] = std::move(tex);
+}
+
+
 void CrateApp::LoadTextures() {
+	// Modify: add two textures for later combination
+	/*
 	auto woodCrateTex = std::make_unique<Texture>();
 	woodCrateTex->Name = "woodCrateTex";
 	woodCrateTex->Filename = L"../../Textures/WoodCrate01.dds";
@@ -429,11 +444,19 @@ void CrateApp::LoadTextures() {
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
 
 	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
+	*/
+
+	LoadTexture("flareTex", L"../../Textures/flare.dds");
+	LoadTexture("flareAlphaTex", L"../../Textures/flarealpha.dds");
 }
 
 void CrateApp::BuildRootSignature() {
+	// Modify: now there are two textures
 	CD3DX12_DESCRIPTOR_RANGE texTable;
+	/*
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	*/
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);
 
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
@@ -448,7 +471,7 @@ void CrateApp::BuildRootSignature() {
 
 	// A root signature is an array of root parameters.
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
+		static_cast<UINT>(staticSamplers.size()), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
@@ -458,7 +481,7 @@ void CrateApp::BuildRootSignature() {
 		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
 	if (errorBlob != nullptr) {
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		::OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
 	}
 	ThrowIfFailed(hr);
 
@@ -470,6 +493,8 @@ void CrateApp::BuildRootSignature() {
 }
 
 void CrateApp::BuildDescriptorHeaps() {
+	// Modify: now there are two textures
+	/*
 	//
 	// Create the SRV heap.
 	//
@@ -495,6 +520,41 @@ void CrateApp::BuildDescriptorHeaps() {
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
 	md3dDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+	*/
+
+	//
+	// Create the SRV heap.
+	//
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 2;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	srvHeapDesc.NodeMask = 0;
+	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
+
+	//
+	// Fill out the heap with actual descriptors.
+	//
+	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	std::vector<ComPtr<ID3D12Resource>> texList = {
+		mTextures["flareTex"]->Resource,
+		mTextures["flareAlphaTex"]->Resource
+	};
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	for (size_t i = 0; i < texList.size(); ++i) {
+		srvDesc.Format = texList[i]->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = texList[i]->GetDesc().MipLevels;
+
+		md3dDevice->CreateShaderResourceView(texList[i].Get(), &srvDesc, hDescriptor);
+		hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
+	}
 }
 
 void CrateApp::BuildShadersAndInputLayout() {
@@ -514,7 +574,7 @@ void CrateApp::BuildShapeGeometry() {
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
 
 	SubmeshGeometry boxSubmesh;
-	boxSubmesh.IndexCount = (UINT)box.Indices32.size();
+	boxSubmesh.IndexCount = static_cast<UINT>(box.Indices32.size());
 	boxSubmesh.StartIndexLocation = 0;
 	boxSubmesh.BaseVertexLocation = 0;
 
@@ -529,8 +589,8 @@ void CrateApp::BuildShapeGeometry() {
 
 	std::vector<std::uint16_t> indices = box.GetIndices16();
 
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+	const UINT vbByteSize = static_cast<UINT>(vertices.size()) * sizeof(Vertex);
+	const UINT ibByteSize = static_cast<UINT>(indices.size()) * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "boxGeo";
@@ -592,26 +652,26 @@ void CrateApp::BuildPSOs() {
 void CrateApp::BuildFrameResources() {
 	for (int i = 0; i < gNumFrameResources; ++i) {
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
+			1, static_cast<UINT>(mAllRitems.size()), static_cast<UINT>(mMaterials.size())));
 	}
 }
 
 void CrateApp::BuildMaterials() {
-	auto woodCrate = std::make_unique<Material>();
-	woodCrate->Name = "woodCrate";
-	woodCrate->MatCBIndex = 0;
-	woodCrate->DiffuseSrvHeapIndex = 0;
-	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	woodCrate->Roughness = 0.2f;
+	auto boxMat = std::make_unique<Material>();
+	boxMat->Name = "boxMat";
+	boxMat->MatCBIndex = 0;
+	boxMat->DiffuseSrvHeapIndex = 0;
+	boxMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	boxMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	boxMat->Roughness = 0.2f;
 
-	mMaterials["woodCrate"] = std::move(woodCrate);
+	mMaterials["boxMat"] = std::move(boxMat);
 }
 
 void CrateApp::BuildRenderItems() {
 	auto boxRitem = std::make_unique<RenderItem>();
 	boxRitem->ObjCBIndex = 0;
-	boxRitem->Mat = mMaterials["woodCrate"].get();
+	boxRitem->Mat = mMaterials["boxMat"].get();
 	boxRitem->Geo = mGeometries["boxGeo"].get();
 	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
@@ -708,3 +768,4 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CrateApp::GetStaticSamplers() {
 		linearWrap, linearClamp,
 		anisotropicWrap, anisotropicClamp };
 }
+

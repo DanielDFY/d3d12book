@@ -28,6 +28,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *Crate* : Render a cube with a crate texture.
   * *TexColumns* : This demo is based on the *LitColumns* demo from the previous chapter, adding textures to the ground, columns and spheres.
   * *TexWaves* : This demo is based on the *LitWaves* demo from the previous chapter, adding textures to the land and water. Also the water texture scrolls over the water geometry as a function of time.
+* Chapter 10 Blending
+  * BlendDemo : ...
 * ...
 
 
@@ -81,9 +83,13 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 09 Texturing
 
-  * [ ] *Exercise_09_03*
+  * [x] *Exercise_09_03*
 
-    > Modify the *Crate* demo by combining two source textures in a pixel shader to produce a mixed texture over each cube face, and rotate the mixed texture as a function of time.
+    > Modify the *Crate* demo by combining two source textures(`flare.dds` and `flarealpha.dds`) in a pixel shader to produce a fireball texture over each cube face, and rotate the flare texture around its center as a function of time.
 
-* ...
+* Chapter 10 Blending
+
+  * [ ] ...
+
+* [ ] ...
 
