@@ -29,7 +29,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *TexColumns* : This demo is based on the *LitColumns* demo from the previous chapter, adding textures to the ground, columns and spheres.
   * *TexWaves* : This demo is based on the *LitWaves* demo from the previous chapter, adding textures to the land and water. Also the water texture scrolls over the water geometry as a function of time.
 * Chapter 10 Blending
-  * BlendDemo : ...
+  * BlendDemo : This demo is based on the *TexWaves* demo from the previous chapter, adding blending effect to the land and water. Also add fog to the scene.
+* Chapter 11 Stenciling
+  * StencilDemo : ...
 * ...
 
 
@@ -87,7 +89,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the *Crate* demo by combining two source textures(`flare.dds` and `flarealpha.dds`) in a pixel shader to produce a fireball texture over each cube face, and rotate the flare texture around its center as a function of time.
 
-* Chapter 10 Blending
+* Chapter 11 Stenciling
 
   * [ ] ...
 
