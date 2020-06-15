@@ -123,6 +123,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_08_06", "Chapter 0
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_09_03", "Chapter 09 Texturing\Exercise_09_03\Exercise_09_03.vcxproj", "{F1F08658-1E21-4491-99A2-1360D3F4BFF3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_11_07", "Chapter 11 Stenciling\Exercise_11_07\Exercise_11_07.vcxproj", "{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -441,6 +443,14 @@ Global
 		{F1F08658-1E21-4491-99A2-1360D3F4BFF3}.Release|x64.Build.0 = Release|x64
 		{F1F08658-1E21-4491-99A2-1360D3F4BFF3}.Release|x86.ActiveCfg = Release|Win32
 		{F1F08658-1E21-4491-99A2-1360D3F4BFF3}.Release|x86.Build.0 = Release|Win32
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Debug|x64.ActiveCfg = Debug|x64
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Debug|x64.Build.0 = Debug|x64
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Debug|x86.ActiveCfg = Debug|Win32
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Debug|x86.Build.0 = Debug|Win32
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Release|x64.ActiveCfg = Release|x64
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Release|x64.Build.0 = Release|x64
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Release|x86.ActiveCfg = Release|Win32
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -485,6 +495,7 @@ Global
 		{52DD50FC-076F-4B06-89BD-68F014E8A817} = {CC8695A8-8801-40A5-A20A-B3FC0F99B097}
 		{CB13728B-9F93-4C50-A98C-FE8593D78BC9} = {CC8695A8-8801-40A5-A20A-B3FC0F99B097}
 		{F1F08658-1E21-4491-99A2-1360D3F4BFF3} = {1F5CB2ED-12AC-4F03-BC8E-0126BE4C51AC}
+		{348EFAB0-CE31-44CE-AE54-7D0791B1A2D3} = {357E9794-8FAA-43A0-9315-20A9BDC3A844}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60DAF673-9108-4394-9DAC-E93E4555DC7D}

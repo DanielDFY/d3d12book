@@ -31,7 +31,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 10 Blending
   * BlendDemo : This demo is based on the *TexWaves* demo from the previous chapter, adding blending effect to the land and water. Also add fog to the scene.
 * Chapter 11 Stenciling
-  * StencilDemo : ...
+  * StencilDemo : Render a scene with a wall, a floor, a mirror and a skull. The mirror can reflect the skull and the shadow of the skull is on the floor.
 * ...
 
 
@@ -91,7 +91,23 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 11 Stenciling
 
-  * [ ] ...
+  * [x] *Exercise_11_07*
+
+    > Modify the *Blend* demo from Chapter 10 to draw a cylinder (with no caps) at the
+    > center of the scene. Texture the cylinder with the 60 frame animated electric bolt
+    > animation using additive blending.
+
+  * [ ] *Exercise_11_08*
+
+    > 
+
+  * [ ] *Exercise_11_09*
+
+    > 
+
+  * [ ] *Exercise_11_11*
+
+    > 
 
 * [ ] ...
 
