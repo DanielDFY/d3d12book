@@ -95,19 +95,20 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the *Blend* demo from Chapter 10 to draw a cylinder (with no caps) at the center of the scene. Texture the cylinder with the 60 frame animated electric bolt animation using additive blending. We can set a member variable for current texture index. In each draw call, get the proper texture image indicated by this index and increase it for next draw call (using modulus operation to loop the index).
     
-  * [ ] *Exercise_11_08*
+  * [x] *Exercise_11_08*
 
     > Render the depth complexity of the scene used in the *Blend* demo from Chapter 10. First draw the original scene while using stencil buffer as the depth complexity counter buffer(set `StencilFunc` to `D3D12_COMPARISON_FUNC_ALWAYS` to pass all stencil tests and set `StencilPassOp` to `D3D12_STENCIL_OP_INCR` to increase the value in stencil buffer every time a pixel fragment is processed). Then, after the frame has been drawn, visualize the depth complexity by associating a special color for each level of depth complexity.
     >
     > For each level of depth complexity k: set the stencil comparison function to `D3D12_COMPARISON_EQUAL` , set all the test operations to `D3D12_STENCIL_OP_KEEP` to prevent changing any counters, and set the stencil reference value to k (Also set `DepthFunc` to `D3D12_COMPARISON_FUNC_ALWAYS` and set `DepthWriteMask` to `D3D12_DEPTH_WRITE_MASK_ZERO` to pass all depth test will not changing any depth value), and then draw a quad of color c<sub>k</sub> that covers the entire projection window. Note that this will only color the pixels that have a depth complexity of k because of the preceding set stencil comparison function and reference value.
 
-  * [ ] *Exercise_11_09*
+  * [x] *Exercise_11_09*
 
-    > 
+    > Another way to implement depth complexity visualization is to use additive blending. First clear the back buffer black and disable the depth test(pass all tests). Next, set the source and
+    > destination blend factors both to `D3D12_BLEND_ONE`, and the blend operation to `D3D12_BLEND_OP_ADD` so that the blending equation looks like C = C<sub>src</sub> + C<sub>dst</sub>. Now render all the objects in the scene with a pixel shader that outputs a low intensity color like (0.05, 0.05, 0.05). The more overdraw a pixel has, the more of these low intensity colors will be summed in, thus increasing the brightness of the pixel. Thus by looking at the intensity of each pixel after rendering the scene, we obtain an idea of the scene depth complexity.
 
   * [ ] *Exercise_11_11*
 
-    > 
+    > Modify the *Mirror* demo to reflect the floor into the mirror in addition to the skull.
 
 * [ ] ...
 
