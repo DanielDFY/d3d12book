@@ -153,6 +153,11 @@
     <ClCompile Include="..\..\Common\MathHelper.cpp" />
     <ClCompile Include="BoxPyramidApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

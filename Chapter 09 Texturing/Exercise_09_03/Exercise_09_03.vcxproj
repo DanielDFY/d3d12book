@@ -160,6 +160,18 @@
     <ClCompile Include="CrateApp.cpp" />
     <ClCompile Include="FrameResource.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\flare.dds" />
+    <Image Include="..\..\Textures\flarealpha.dds" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

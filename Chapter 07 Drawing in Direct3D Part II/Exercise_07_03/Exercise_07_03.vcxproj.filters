@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="着色器文件">
+      <UniqueIdentifier>{d39b076e-576f-4ff9-a767-90e81c9adc66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h">
@@ -65,5 +68,13 @@
     <ClCompile Include="SkullApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\color.hlsl">
+      <Filter>着色器文件</Filter>
+    </None>
+    <None Include="..\..\Models\skull.txt">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="着色器文件">
+      <UniqueIdentifier>{5cee772e-f764-4b61-94c2-f34c38cf1b39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h">
@@ -74,5 +77,201 @@
     <ClCompile Include="Waves.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Default.hlsl">
+      <Filter>着色器文件</Filter>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <Filter>着色器文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\Bolt001.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt002.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt003.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt004.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt005.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt006.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt007.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt008.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt009.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt010.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt011.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt012.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt013.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt014.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt015.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt016.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt017.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt018.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt019.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt020.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt021.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt022.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt023.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt024.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt025.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt026.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt027.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt028.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt029.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt030.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt031.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt032.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt033.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt034.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt035.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt036.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt037.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt038.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt039.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt040.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt041.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt042.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt043.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt044.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt045.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt046.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt047.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt048.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt049.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt050.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt051.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt052.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt053.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt054.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt055.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt056.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt057.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt058.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt059.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\Bolt060.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\grass.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\water1.dds">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

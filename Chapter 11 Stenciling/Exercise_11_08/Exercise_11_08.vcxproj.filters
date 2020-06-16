@@ -13,8 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="着色器文件">
-      <UniqueIdentifier>{f84a1ab6-5666-4d58-bf49-7f97537e61d3}</UniqueIdentifier>
+    <Filter Include="着色器">
+      <UniqueIdentifier>{43600c58-4caa-46ce-b65d-ae7c4d0aa3ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +25,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\d3dx12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\DDSTextureLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\GameTimer.h">
@@ -42,12 +45,18 @@
     <ClInclude Include="FrameResource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Waves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\d3dApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\d3dUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\DDSTextureLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\GameTimer.cpp">
@@ -59,24 +68,36 @@
     <ClCompile Include="..\..\Common\MathHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BlendApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="FrameResource.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LitColumnsApp.cpp">
+    <ClCompile Include="Waves.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Default.hlsl">
-      <Filter>着色器文件</Filter>
+      <Filter>着色器</Filter>
+    </None>
+    <None Include="Shaders\DepthComplexity.hlsl">
+      <Filter>着色器</Filter>
     </None>
     <None Include="Shaders\LightingUtil.hlsl">
-      <Filter>着色器文件</Filter>
+      <Filter>着色器</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\Models\skull.txt">
+    <Image Include="..\..\Textures\grass.dds">
       <Filter>资源文件</Filter>
-    </Text>
+    </Image>
+    <Image Include="..\..\Textures\water1.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\Textures\WireFence.dds">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 // BlendApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
-// Exercise_11_07 BlendApp.cpp modified by DanielDFY
+// Exercise_11_08 BlendApp.cpp modified by DanielDFY
 
 #include "../../Common/d3dApp.h"
 #include "../../Common/MathHelper.h"
@@ -58,7 +58,7 @@ enum class RenderLayer : int
 {
 	Opaque = 0,
 	Transparent,
-	Bolt,
+	AlphaTested,
 	Count
 };
 
@@ -95,7 +95,7 @@ private:
     void BuildShadersAndInputLayout();
     void BuildLandGeometry();
     void BuildWavesGeometry();
-	void BuildCylinderGeometry();
+	void BuildBoxGeometry();
     void BuildPSOs();
     void BuildFrameResources();
     void BuildMaterials();
@@ -112,7 +112,6 @@ private:
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
-	int mCurrBoltTexIndex = 0;
 
     UINT mCbvSrvDescriptorSize = 0;
 
@@ -205,7 +204,7 @@ bool BlendApp::Initialize()
     BuildShadersAndInputLayout();
     BuildLandGeometry();
     BuildWavesGeometry();
-	BuildCylinderGeometry();
+	BuildBoxGeometry();
 	BuildMaterials();
     BuildRenderItems();
     BuildFrameResources();
@@ -291,15 +290,30 @@ void BlendApp::Draw(const GameTimer& gt)
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
+	// First render the scene and use the stencil buffer as a counter
+
     DrawRenderItems(mCommandList.Get(), mRitemLayer[static_cast<int>(RenderLayer::Opaque)]);
 
-	// Modify: draw with proper texture indicated by mCurrBoltTexIndex
-	mCommandList->SetPipelineState(mPSOs["bolt"].Get());
-	mCurrBoltTexIndex %= 60;
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[static_cast<int>(RenderLayer::Bolt)]);
+	mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[static_cast<int>(RenderLayer::AlphaTested)]);
 
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[static_cast<int>(RenderLayer::Transparent)]);
+
+	// Modify: then visualize the rendering time of each pixel
+	mCommandList->SetPipelineState(mPSOs["depthComplexity"].Get());
+	// divide into 5 different complexity levels
+	for (uint32_t i = 1; i < 6; ++i) {
+		mCommandList->OMSetStencilRef(i);
+		mCommandList->SetGraphicsRoot32BitConstant(4, i, 0);
+
+		// draw each pixel only based on its stencil buffer record
+		mCommandList->IASetVertexBuffers(0, 1, nullptr);
+		mCommandList->IASetIndexBuffer(nullptr);
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		mCommandList->DrawInstanced(6, 1, 0, 0);
+	}
 
     // Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -556,22 +570,16 @@ void BlendApp::LoadTextures()
 		mCommandList.Get(), waterTex->Filename.c_str(),
 		waterTex->Resource, waterTex->UploadHeap));
 
+	auto fenceTex = std::make_unique<Texture>();
+	fenceTex->Name = "fenceTex";
+	fenceTex->Filename = L"../../Textures/WireFence.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), fenceTex->Filename.c_str(),
+		fenceTex->Resource, fenceTex->UploadHeap));
+
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
-
-	// Modify: one bolt texture each frame
-	const std::string texNamePrefix = "BoltTex_";
-	for (size_t i = 0; i < 60; ++i) {
-		auto boltTex = std::make_unique<Texture>();
-		boltTex->Name = texNamePrefix + std::to_string(i);
-		const std::wstring fileNamePrefix = (i < 9) ? L"../../Textures/Bolt00" : L"../../Textures/Bolt0";
-		boltTex->Filename = fileNamePrefix + std::to_wstring(i + 1) + L".dds";
-		ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-			mCommandList.Get(), boltTex->Filename.c_str(),
-			boltTex->Resource, boltTex->UploadHeap));
-
-		mTextures[boltTex->Name] = std::move(boltTex);
-	}
+	mTextures[fenceTex->Name] = std::move(fenceTex);
 }
 
 void BlendApp::BuildRootSignature()
@@ -580,18 +588,20 @@ void BlendApp::BuildRootSignature()
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
 	// Perfomance TIP: Order from most frequent to least frequent.
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
     slotRootParameter[1].InitAsConstantBufferView(0);
     slotRootParameter[2].InitAsConstantBufferView(1);
     slotRootParameter[3].InitAsConstantBufferView(2);
+	// for stencil ref
+	slotRootParameter[4].InitAsConstants(1, 3, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	auto staticSamplers = GetStaticSamplers();
 
     // A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
 		static_cast<UINT>(staticSamplers.size()), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -620,7 +630,7 @@ void BlendApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 62;
+	srvHeapDesc.NumDescriptors = 3;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -628,18 +638,11 @@ void BlendApp::BuildDescriptorHeaps()
 	//
 	// Fill out the heap with actual descriptors.
 	//
+	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
-
-	// Modify: load all the bolt textures into descriptor heap
-	std::vector<ComPtr<ID3D12Resource>> boltTexList(60);
-	const std::string boltTexNamePrefix = "BoltTex_";
-	for (size_t i = 0; i < 60; ++i) {
-		boltTexList[i] = mTextures[boltTexNamePrefix + std::to_string(i)]->Resource;
-	}
-	
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	auto fenceTex = mTextures["fenceTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -658,14 +661,8 @@ void BlendApp::BuildDescriptorHeaps()
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	for (size_t i = 0; i < 60; ++i) {
-		srvDesc.Format = boltTexList[i]->GetDesc().Format;
-		md3dDevice->CreateShaderResourceView(boltTexList[i].Get(), &srvDesc, hDescriptor);
-		
-		// next descriptor
-		hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-	}
-	
+	srvDesc.Format = fenceTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(fenceTex.Get(), &srvDesc, hDescriptor);
 }
 
 void BlendApp::BuildShadersAndInputLayout()
@@ -686,6 +683,8 @@ void BlendApp::BuildShadersAndInputLayout()
 	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", defines, "PS", "ps_5_1");
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
+	mShaders["depthComplexityVS"] = d3dUtil::CompileShader(L"Shaders/DepthComplexity.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["depthComplexityPS"] = d3dUtil::CompileShader(L"Shaders/DepthComplexity.hlsl", nullptr, "PS", "ps_5_1");
 	
     mInputLayout =
     {
@@ -716,10 +715,10 @@ void BlendApp::BuildLandGeometry()
 		vertices[i].TexC = grid.Vertices[i].TexC;
     }
 
-    const UINT vbByteSize = static_cast<UINT>(vertices.size() * sizeof(Vertex));
+    const UINT vbByteSize = static_cast<UINT>(vertices.size()) * sizeof(Vertex);
 
     std::vector<std::uint16_t> indices = grid.GetIndices16();
-    const UINT ibByteSize = static_cast<UINT>(indices.size() * sizeof(std::uint16_t));
+    const UINT ibByteSize = static_cast<UINT>(indices.size()) * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "landGeo";
@@ -777,7 +776,7 @@ void BlendApp::BuildWavesGeometry()
     }
 
 	UINT vbByteSize = mWaves->VertexCount()*sizeof(Vertex);
-	UINT ibByteSize = static_cast<UINT>(indices.size()*sizeof(std::uint16_t));
+	UINT ibByteSize = static_cast<UINT>(indices.size())*sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "waterGeo";
@@ -807,114 +806,27 @@ void BlendApp::BuildWavesGeometry()
 	mGeometries["waterGeo"] = std::move(geo);
 }
 
-// generate a cylinder without top and bottom caps
-GeometryGenerator::MeshData CreateCylinderWithoutCaps(float bottomRadius, float topRadius, float height, std::uint32_t sliceCount, std::uint32_t stackCount) {
-	GeometryGenerator::MeshData meshData;
-
-	//
-	// Build Stacks.
-	// 
-
-	float stackHeight = height / stackCount;
-
-	// Amount to increment radius as we move up each stack level from bottom to top.
-	float radiusStep = (topRadius - bottomRadius) / stackCount;
-
-	std::uint32_t ringCount = stackCount + 1;
-
-	// Compute vertices for each stack ring starting at the bottom and moving up.
-	for (std::uint32_t i = 0; i < ringCount; ++i) {
-		float y = -0.5f * height + i * stackHeight;
-		float r = bottomRadius + i * radiusStep;
-
-		// vertices of ring
-		float dTheta = 2.0f * XM_PI / sliceCount;
-		for (std::uint32_t j = 0; j <= sliceCount; ++j) {
-			GeometryGenerator::Vertex vertex;
-
-			float c = cosf(j * dTheta);
-			float s = sinf(j * dTheta);
-
-			vertex.Position = XMFLOAT3(r * c, y, r * s);
-
-			vertex.TexC.x = (float)j / sliceCount;
-			vertex.TexC.y = (1.0f - (float)i / stackCount) * 1.5f;
-
-			// Cylinder can be parameterized as follows, where we introduce v
-			// parameter that goes in the same direction as the v tex-coord
-			// so that the bitangent goes in the same direction as the v tex-coord.
-			//   Let r0 be the bottom radius and let r1 be the top radius.
-			//   y(v) = h - hv for v in [0,1].
-			//   r(v) = r1 + (r0-r1)v
-			//
-			//   x(t, v) = r(v)*cos(t)
-			//   y(t, v) = h - hv
-			//   z(t, v) = r(v)*sin(t)
-			// 
-			//  dx/dt = -r(v)*sin(t)
-			//  dy/dt = 0
-			//  dz/dt = +r(v)*cos(t)
-			//
-			//  dx/dv = (r0-r1)*cos(t)
-			//  dy/dv = -h
-			//  dz/dv = (r0-r1)*sin(t)
-
-			// This is unit length.
-			vertex.TangentU = XMFLOAT3(-s, 0.0f, c);
-
-			float dr = bottomRadius - topRadius;
-			XMFLOAT3 bitangent(dr * c, -height, dr * s);
-
-			XMVECTOR T = XMLoadFloat3(&vertex.TangentU);
-			XMVECTOR B = XMLoadFloat3(&bitangent);
-			XMVECTOR N = XMVector3Normalize(XMVector3Cross(T, B));
-			XMStoreFloat3(&vertex.Normal, N);
-
-			meshData.Vertices.push_back(vertex);
-		}
-	}
-
-	// Add one because we duplicate the first and last vertex per ring
-	// since the texture coordinates are different.
-	const std::uint32_t ringVertexCount = sliceCount + 1;
-
-	// Compute indices for each stack.
-	for (std::uint32_t i = 0; i < stackCount; ++i) {
-		for (std::uint32_t j = 0; j < sliceCount; ++j) {
-			meshData.Indices32.push_back(i * ringVertexCount + j);
-			meshData.Indices32.push_back((i + 1) * ringVertexCount + j);
-			meshData.Indices32.push_back((i + 1) * ringVertexCount + j + 1);
-
-			meshData.Indices32.push_back(i * ringVertexCount + j);
-			meshData.Indices32.push_back((i + 1) * ringVertexCount + j + 1);
-			meshData.Indices32.push_back(i * ringVertexCount + j + 1);
-		}
-	}
-
-	return meshData;
-}
-
-void BlendApp::BuildCylinderGeometry()
+void BlendApp::BuildBoxGeometry()
 {
-	// Modify: replace box with cylinder without caps
-	GeometryGenerator::MeshData cylinder = CreateCylinderWithoutCaps(4.0f, 4.0f, 12.0f, 20, 20);
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
 
-	std::vector<Vertex> vertices(cylinder.Vertices.size());
-	for (size_t i = 0; i < cylinder.Vertices.size(); ++i)
+	std::vector<Vertex> vertices(box.Vertices.size());
+	for (size_t i = 0; i < box.Vertices.size(); ++i)
 	{
-		auto& p = cylinder.Vertices[i].Position;
+		auto& p = box.Vertices[i].Position;
 		vertices[i].Pos = p;
-		vertices[i].Normal = cylinder.Vertices[i].Normal;
-		vertices[i].TexC = cylinder.Vertices[i].TexC;
+		vertices[i].Normal = box.Vertices[i].Normal;
+		vertices[i].TexC = box.Vertices[i].TexC;
 	}
 
-	const UINT vbByteSize = static_cast<UINT>(vertices.size() * sizeof(Vertex));
+	const UINT vbByteSize = static_cast<UINT>(vertices.size()) * sizeof(Vertex);
 
-	std::vector<std::uint16_t> indices = cylinder.GetIndices16();
-	const UINT ibByteSize = static_cast<UINT>(indices.size() * sizeof(std::uint16_t));
+	std::vector<std::uint16_t> indices = box.GetIndices16();
+	const UINT ibByteSize = static_cast<UINT>(indices.size()) * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "cylinderGeo";
+	geo->Name = "boxGeo";
 
 	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
 	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
@@ -938,18 +850,42 @@ void BlendApp::BuildCylinderGeometry()
 	submesh.StartIndexLocation = 0;
 	submesh.BaseVertexLocation = 0;
 
-	geo->DrawArgs["cylinder"] = submesh;
+	geo->DrawArgs["box"] = submesh;
 
-	mGeometries["cylinderGeo"] = std::move(geo);
+	mGeometries["boxGeo"] = std::move(geo);
 }
 
 void BlendApp::BuildPSOs()
 {
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
-
 	//
 	// PSO for opaque objects.
 	//
+	
+	// Modify: store render counts of each pixel into stencil buffer
+	D3D12_DEPTH_STENCIL_DESC opaqueDSS;
+	opaqueDSS.DepthEnable = true;
+	opaqueDSS.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	opaqueDSS.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	opaqueDSS.StencilEnable = true;
+	opaqueDSS.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+	opaqueDSS.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+
+	opaqueDSS.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	opaqueDSS.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	// record increasing render counter of each pixel during each rendering 
+	opaqueDSS.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+	// pass all stencil tests to record render counts of each pixel 
+	opaqueDSS.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	opaqueDSS.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	opaqueDSS.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	// record increasing render counter of each pixel during each rendering 
+	opaqueDSS.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+	// todo
+	opaqueDSS.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
+	
     ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	opaquePsoDesc.InputLayout = { mInputLayout.data(), static_cast<UINT>(mInputLayout.size()) };
 	opaquePsoDesc.pRootSignature = mRootSignature.Get();
@@ -965,7 +901,8 @@ void BlendApp::BuildPSOs()
 	};
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	// Modify: apply new depth stencil state object
+	opaquePsoDesc.DepthStencilState = opaqueDSS;
 	opaquePsoDesc.SampleMask = UINT_MAX;
 	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	opaquePsoDesc.NumRenderTargets = 1;
@@ -979,8 +916,6 @@ void BlendApp::BuildPSOs()
 	// PSO for transparent objects
 	//
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
-
 	D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
 	transparencyBlendDesc.BlendEnable = true;
 	transparencyBlendDesc.LogicOpEnable = false;
@@ -993,6 +928,7 @@ void BlendApp::BuildPSOs()
 	transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
 	transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
 	transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
 
@@ -1000,31 +936,51 @@ void BlendApp::BuildPSOs()
 	// PSO for alpha tested objects
 	//
 
-	// Modify: transparent bolts with blending
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC boltPsoDesc = opaquePsoDesc;
-
-	D3D12_RENDER_TARGET_BLEND_DESC boltBlendDesc;
-	boltBlendDesc.BlendEnable = true;
-	boltBlendDesc.LogicOpEnable = false;
-	boltBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	boltBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	boltBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-	boltBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	boltBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-	boltBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	boltBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
-	boltBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	boltPsoDesc.BlendState.RenderTarget[0] = boltBlendDesc;
-	
-	boltPsoDesc.PS =
-	{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC alphaTestedPsoDesc = opaquePsoDesc;
+	alphaTestedPsoDesc.PS = 
+	{ 
 		reinterpret_cast<BYTE*>(mShaders["alphaTestedPS"]->GetBufferPointer()),
 		mShaders["alphaTestedPS"]->GetBufferSize()
 	};
-	boltPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&boltPsoDesc, IID_PPV_ARGS(&mPSOs["bolt"])));
+	alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
+
+	//
+	// Modify: PSO for visualizing counter in stencil buffer
+	//
+	
+	D3D12_DEPTH_STENCIL_DESC depthComplexityDSS;
+	// pass all depth tests while preventing depth writing 
+	depthComplexityDSS.DepthEnable = true;
+	depthComplexityDSS.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthComplexityDSS.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthComplexityDSS.StencilEnable = true;
+	depthComplexityDSS.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+	depthComplexityDSS.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+
+	depthComplexityDSS.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	depthComplexityDSS.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexityDSS.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexityDSS.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+
+	depthComplexityDSS.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	depthComplexityDSS.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexityDSS.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexityDSS.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC depthComplexityPsoDesc = opaquePsoDesc;
+	depthComplexityPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["depthComplexityVS"]->GetBufferPointer()),
+		mShaders["depthComplexityVS"]->GetBufferSize()
+	};
+	depthComplexityPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["depthComplexityPS"]->GetBufferPointer()),
+		mShaders["depthComplexityPS"]->GetBufferSize()
+	};
+	depthComplexityPsoDesc.DepthStencilState = depthComplexityDSS;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&depthComplexityPsoDesc, IID_PPV_ARGS(&mPSOs["depthComplexity"])));
 }
 
 void BlendApp::BuildFrameResources()
@@ -1056,18 +1012,17 @@ void BlendApp::BuildMaterials()
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
-	// Modify: build bolt material
-	auto bolt = std::make_unique<Material>();
-	bolt->Name = "bolt";
-	bolt->MatCBIndex = 2;
-	bolt->DiffuseSrvHeapIndex = 2;
-	bolt->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f);
-	bolt->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	bolt->Roughness = 0.0f;
+	auto wirefence = std::make_unique<Material>();
+	wirefence->Name = "wirefence";
+	wirefence->MatCBIndex = 2;
+	wirefence->DiffuseSrvHeapIndex = 2;
+	wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wirefence->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	wirefence->Roughness = 0.25f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
-	mMaterials["bolt"] = std::move(bolt);
+	mMaterials["wirefence"] = std::move(wirefence);
 }
 
 void BlendApp::BuildRenderItems()
@@ -1100,22 +1055,21 @@ void BlendApp::BuildRenderItems()
 
 	mRitemLayer[static_cast<int>(RenderLayer::Opaque)].push_back(gridRitem.get());
 
-	// Modify: build render item for bolt cylinder
-	auto cylinderRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&cylinderRitem->World, XMMatrixTranslation(3.0f, 5.0f, -9.0f));
-	cylinderRitem->ObjCBIndex = 2;
-	cylinderRitem->Mat = mMaterials["bolt"].get();
-	cylinderRitem->Geo = mGeometries["cylinderGeo"].get();
-	cylinderRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	cylinderRitem->IndexCount = cylinderRitem->Geo->DrawArgs["cylinder"].IndexCount;
-	cylinderRitem->StartIndexLocation = cylinderRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
-	cylinderRitem->BaseVertexLocation = cylinderRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
+	auto boxRitem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&boxRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
+	boxRitem->ObjCBIndex = 2;
+	boxRitem->Mat = mMaterials["wirefence"].get();
+	boxRitem->Geo = mGeometries["boxGeo"].get();
+	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
+	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
 
-	mRitemLayer[static_cast<int>(RenderLayer::Bolt)].push_back(cylinderRitem.get());
+	mRitemLayer[static_cast<int>(RenderLayer::AlphaTested)].push_back(boxRitem.get());
 
     mAllRitems.push_back(std::move(wavesRitem));
     mAllRitems.push_back(std::move(gridRitem));
-	mAllRitems.push_back(std::move(cylinderRitem));
+	mAllRitems.push_back(std::move(boxRitem));
 }
 
 void BlendApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
@@ -1135,14 +1089,8 @@ void BlendApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::ve
         cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
         cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-    		// Modify: bolt texture descriptors start from 2, and the
-    		//		   offset is based on current bolt texture index
 		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		INT OffsetInDescriptors = ri->Mat->DiffuseSrvHeapIndex;
-    		if (OffsetInDescriptors == 2) {
-			OffsetInDescriptors += mCurrBoltTexIndex++;
-    		}
-		tex.Offset(OffsetInDescriptors, mCbvSrvDescriptorSize);
+		tex.Offset(ri->Mat->DiffuseSrvHeapIndex, mCbvSrvDescriptorSize);
 
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex*objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex*matCBByteSize;

@@ -162,6 +162,78 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\Bolt001.dds" />
+    <Image Include="..\..\Textures\Bolt002.dds" />
+    <Image Include="..\..\Textures\Bolt003.dds" />
+    <Image Include="..\..\Textures\Bolt004.dds" />
+    <Image Include="..\..\Textures\Bolt005.dds" />
+    <Image Include="..\..\Textures\Bolt006.dds" />
+    <Image Include="..\..\Textures\Bolt007.dds" />
+    <Image Include="..\..\Textures\Bolt008.dds" />
+    <Image Include="..\..\Textures\Bolt009.dds" />
+    <Image Include="..\..\Textures\Bolt010.dds" />
+    <Image Include="..\..\Textures\Bolt011.dds" />
+    <Image Include="..\..\Textures\Bolt012.dds" />
+    <Image Include="..\..\Textures\Bolt013.dds" />
+    <Image Include="..\..\Textures\Bolt014.dds" />
+    <Image Include="..\..\Textures\Bolt015.dds" />
+    <Image Include="..\..\Textures\Bolt016.dds" />
+    <Image Include="..\..\Textures\Bolt017.dds" />
+    <Image Include="..\..\Textures\Bolt018.dds" />
+    <Image Include="..\..\Textures\Bolt019.dds" />
+    <Image Include="..\..\Textures\Bolt020.dds" />
+    <Image Include="..\..\Textures\Bolt021.dds" />
+    <Image Include="..\..\Textures\Bolt022.dds" />
+    <Image Include="..\..\Textures\Bolt023.dds" />
+    <Image Include="..\..\Textures\Bolt024.dds" />
+    <Image Include="..\..\Textures\Bolt025.dds" />
+    <Image Include="..\..\Textures\Bolt026.dds" />
+    <Image Include="..\..\Textures\Bolt027.dds" />
+    <Image Include="..\..\Textures\Bolt028.dds" />
+    <Image Include="..\..\Textures\Bolt029.dds" />
+    <Image Include="..\..\Textures\Bolt030.dds" />
+    <Image Include="..\..\Textures\Bolt031.dds" />
+    <Image Include="..\..\Textures\Bolt032.dds" />
+    <Image Include="..\..\Textures\Bolt033.dds" />
+    <Image Include="..\..\Textures\Bolt034.dds" />
+    <Image Include="..\..\Textures\Bolt035.dds" />
+    <Image Include="..\..\Textures\Bolt036.dds" />
+    <Image Include="..\..\Textures\Bolt037.dds" />
+    <Image Include="..\..\Textures\Bolt038.dds" />
+    <Image Include="..\..\Textures\Bolt039.dds" />
+    <Image Include="..\..\Textures\Bolt040.dds" />
+    <Image Include="..\..\Textures\Bolt041.dds" />
+    <Image Include="..\..\Textures\Bolt042.dds" />
+    <Image Include="..\..\Textures\Bolt043.dds" />
+    <Image Include="..\..\Textures\Bolt044.dds" />
+    <Image Include="..\..\Textures\Bolt045.dds" />
+    <Image Include="..\..\Textures\Bolt046.dds" />
+    <Image Include="..\..\Textures\Bolt047.dds" />
+    <Image Include="..\..\Textures\Bolt048.dds" />
+    <Image Include="..\..\Textures\Bolt049.dds" />
+    <Image Include="..\..\Textures\Bolt050.dds" />
+    <Image Include="..\..\Textures\Bolt051.dds" />
+    <Image Include="..\..\Textures\Bolt052.dds" />
+    <Image Include="..\..\Textures\Bolt053.dds" />
+    <Image Include="..\..\Textures\Bolt054.dds" />
+    <Image Include="..\..\Textures\Bolt055.dds" />
+    <Image Include="..\..\Textures\Bolt056.dds" />
+    <Image Include="..\..\Textures\Bolt057.dds" />
+    <Image Include="..\..\Textures\Bolt058.dds" />
+    <Image Include="..\..\Textures\Bolt059.dds" />
+    <Image Include="..\..\Textures\Bolt060.dds" />
+    <Image Include="..\..\Textures\grass.dds" />
+    <Image Include="..\..\Textures\water1.dds" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

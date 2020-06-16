@@ -152,6 +152,11 @@
     <ClInclude Include="Common modified\d3dUtil.h" />
     <ClInclude Include="Common modified\UploadBuffer.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

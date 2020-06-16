@@ -158,6 +158,11 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="ShapesApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
