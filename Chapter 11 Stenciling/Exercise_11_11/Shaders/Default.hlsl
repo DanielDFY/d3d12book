@@ -8,15 +8,15 @@
 
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
-#define NUM_DIR_LIGHTS 3
+    #define NUM_DIR_LIGHTS 3
 #endif
 
 #ifndef NUM_POINT_LIGHTS
-#define NUM_POINT_LIGHTS 0
+    #define NUM_POINT_LIGHTS 0
 #endif
 
 #ifndef NUM_SPOT_LIGHTS
-#define NUM_SPOT_LIGHTS 0
+    #define NUM_SPOT_LIGHTS 0
 #endif
 
 // Include structures and functions for lighting.
@@ -134,22 +134,25 @@ struct MaterialConstants {
 
 ConstantBuffer<MaterialConstants> gMaterialConstants : register(b2);
 
-struct VertexIn {
-    float3 PosL    : POSITION;
+struct VertexIn
+{
+	float3 PosL    : POSITION;
     float3 NormalL : NORMAL;
-    float2 TexC    : TEXCOORD;
+	float2 TexC    : TEXCOORD;
 };
 
-struct VertexOut {
-    float4 PosH    : SV_POSITION;
+struct VertexOut
+{
+	float4 PosH    : SV_POSITION;
     float3 PosW    : POSITION;
     float3 NormalW : NORMAL;
-    float2 TexC    : TEXCOORD;
+	float2 TexC    : TEXCOORD;
 };
 
-VertexOut VS(VertexIn vin) {
-    VertexOut vout = (VertexOut)0.0f;
-
+VertexOut VS(VertexIn vin)
+{
+	VertexOut vout = (VertexOut)0.0f;
+	
     // Transform to world space.
     float4 posW = mul(float4(vin.PosL, 1.0f), gObjectConstants.gWorld);
     vout.PosW = posW.xyz;
@@ -159,10 +162,10 @@ VertexOut VS(VertexIn vin) {
 
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gPassConstants.gViewProj);
-
-    // Output vertex attributes for interpolation across triangle.
-    float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gObjectConstants.gTexTransform);
-    vout.TexC = mul(texC, gMaterialConstants.gMatTransform).xy;
+	
+	// Output vertex attributes for interpolation across triangle.
+	float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gObjectConstants.gTexTransform);
+	vout.TexC = mul(texC, gMaterialConstants.gMatTransform).xy;
 
     return vout;
 }
@@ -170,24 +173,24 @@ VertexOut VS(VertexIn vin) {
 float4 PS(VertexOut pin) : SV_Target
 {
     float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gMaterialConstants.gDiffuseAlbedo;
-
+	
 #ifdef ALPHA_TEST
-    // Discard pixel if texture alpha < 0.1.  We do this test as soon 
-    // as possible in the shader so that we can potentially exit the
-    // shader early, thereby skipping the rest of the shader code.
-    clip(diffuseAlbedo.a - 0.1f);
+	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
+	// as possible in the shader so that we can potentially exit the
+	// shader early, thereby skipping the rest of the shader code.
+	clip(diffuseAlbedo.a - 0.1f);
 #endif
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
 
     // Vector from point being lit to eye. 
-    float3 toEyeW = gPassConstants.gEyePosW - pin.PosW;
-    float distToEye = length(toEyeW);
-    toEyeW /= distToEye; // normalize
+	float3 toEyeW = gPassConstants.gEyePosW - pin.PosW;
+	float distToEye = length(toEyeW);
+	toEyeW /= distToEye; // normalize
 
     // Light terms.
-    float4 ambient = gPassConstants.gAmbientLight * diffuseAlbedo;
+    float4 ambient = gPassConstants.gAmbientLight*diffuseAlbedo;
 
     const float shininess = 1.0f - gMaterialConstants.gRoughness;
     Material mat = { diffuseAlbedo, gMaterialConstants.gFresnelR0, shininess };
@@ -198,8 +201,8 @@ float4 PS(VertexOut pin) : SV_Target
     float4 litColor = ambient + directLight;
 
 #ifdef FOG
-    float fogAmount = saturate((distToEye - gPassConstants.gFogStart) / gPassConstants.gFogRange);
-    litColor = lerp(litColor, gPassConstants.gFogColor, fogAmount);
+	float fogAmount = saturate((distToEye - gPassConstants.gFogStart) / gPassConstants.gFogRange);
+	litColor = lerp(litColor, gPassConstants.gFogColor, fogAmount);
 #endif
 
     // Common convention to take alpha from diffuse albedo.
