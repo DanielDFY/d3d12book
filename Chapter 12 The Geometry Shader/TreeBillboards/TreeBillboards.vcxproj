@@ -165,6 +165,24 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\TreeSprite.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\bricks3.dds" />
+    <Image Include="..\..\Textures\checkboard.dds" />
+    <Image Include="..\..\Textures\ice.dds" />
+    <Image Include="..\..\Textures\treeArray2.dds" />
+    <Image Include="..\..\Textures\white1x1.dds" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -24,7 +24,6 @@
 
 Texture2D    gDiffuseMap : register(t0);
 
-
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
 SamplerState gsamLinearWrap       : register(s2);
@@ -116,6 +115,7 @@ struct PassConstants {
 
 ConstantBuffer<PassConstants> gPassConstants : register(b1);
 
+// Constant data that varies per material.
 /*
 cbuffer cbMaterial : register(b2)
 {

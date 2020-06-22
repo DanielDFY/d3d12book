@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{ef058651-76d5-4344-89dd-a5ad62f51f46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\d3dApp.cpp">
@@ -74,5 +77,33 @@
     <ClInclude Include="Waves.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\bricks3.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\Textures\checkboard.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\Textures\ice.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\Textures\white1x1.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\Textures\treeArray2.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Default.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\TreeSprite.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

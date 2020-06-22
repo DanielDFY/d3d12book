@@ -2,6 +2,8 @@
 // TreeSprite.hlsl by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
+// Update to Shader Model 5.1
+
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
     #define NUM_DIR_LIGHTS 3
@@ -18,8 +20,8 @@
 // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
 
-Texture2DArray gTreeMapArray : register(t0);
 
+Texture2DArray gTreeMapArray : register(t0);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -28,14 +30,24 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 
-// Constant data that varies per frame.
+// Constant data that varies per object.
+/*
 cbuffer cbPerObject : register(b0)
 {
-    float4x4 gWorld;
+	float4x4 gWorld;
+	float4x4 gTexTransform;
+};
+*/
+
+struct ObjectConstants {
+	float4x4 gWorld;
 	float4x4 gTexTransform;
 };
 
-// Constant data that varies per material.
+ConstantBuffer<ObjectConstants> gObjectConstants : register(b0);
+
+// Constant data that varies per frame.
+/*
 cbuffer cbPass : register(b1)
 {
     float4x4 gView;
@@ -54,10 +66,44 @@ cbuffer cbPass : register(b1)
     float gDeltaTime;
     float4 gAmbientLight;
 
-	float4 gFogColor;
-	float gFogStart;
-	float gFogRange;
-	float2 cbPerObjectPad2;
+    // Allow application to change fog parameters once per frame.
+    // For example, we may only use fog for certain times of day.
+    float4 gFogColor;
+    float gFogStart;
+    float gFogRange;
+    float2 cbPerObjectPad2;
+
+    // Indices [0, NUM_DIR_LIGHTS) are directional lights;
+    // indices [NUM_DIR_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHTS) are point lights;
+    // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
+    // are spot lights for a maximum of MaxLights per object.
+    Light gLights[MaxLights];
+};
+*/
+
+struct PassConstants {
+    float4x4 gView;
+    float4x4 gInvView;
+    float4x4 gProj;
+    float4x4 gInvProj;
+    float4x4 gViewProj;
+    float4x4 gInvViewProj;
+    float3 gEyePosW;
+    float cbPerObjectPad1;
+    float2 gRenderTargetSize;
+    float2 gInvRenderTargetSize;
+    float gNearZ;
+    float gFarZ;
+    float gTotalTime;
+    float gDeltaTime;
+    float4 gAmbientLight;
+
+    // Allow application to change fog parameters once per frame.
+    // For example, we may only use fog for certain times of day.
+    float4 gFogColor;
+    float gFogStart;
+    float gFogRange;
+    float2 cbPerObjectPad2;
 
     // Indices [0, NUM_DIR_LIGHTS) are directional lights;
     // indices [NUM_DIR_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHTS) are point lights;
@@ -66,13 +112,27 @@ cbuffer cbPass : register(b1)
     Light gLights[MaxLights];
 };
 
+ConstantBuffer<PassConstants> gPassConstants : register(b1);
+
+// Constant data that varies per material.
+/*
 cbuffer cbMaterial : register(b2)
 {
-	float4   gDiffuseAlbedo;
+    float4   gDiffuseAlbedo;
     float3   gFresnelR0;
     float    gRoughness;
-	float4x4 gMatTransform;
+    float4x4 gMatTransform;
 };
+*/
+
+struct MaterialConstants {
+    float4 gDiffuseAlbedo;
+    float3 gFresnelR0;
+    float  gRoughness;
+    float4x4 gMatTransform;
+};
+
+ConstantBuffer<MaterialConstants> gMaterialConstants : register(b2);
  
 struct VertexIn
 {
@@ -119,7 +179,7 @@ void GS(point VertexOut gin[1],
 	//
 
 	float3 up = float3(0.0f, 1.0f, 0.0f);
-	float3 look = gEyePosW - gin[0].CenterW;
+	float3 look = gPassConstants.gEyePosW - gin[0].CenterW;
 	look.y = 0.0f; // y-axis aligned, so project to xz-plane
 	look = normalize(look);
 	float3 right = cross(up, look);
@@ -153,7 +213,7 @@ void GS(point VertexOut gin[1],
 	[unroll]
 	for(int i = 0; i < 4; ++i)
 	{
-		gout.PosH     = mul(v[i], gViewProj);
+		gout.PosH     = mul(v[i], gPassConstants.gViewProj);
 		gout.PosW     = v[i].xyz;
 		gout.NormalW  = look;
 		gout.TexC     = texC[i];
@@ -165,8 +225,8 @@ void GS(point VertexOut gin[1],
 
 float4 PS(GeoOut pin) : SV_Target
 {
-	float3 uvw = float3(pin.TexC, pin.PrimID%3);
-    float4 diffuseAlbedo = gTreeMapArray.Sample(gsamAnisotropicWrap, uvw) * gDiffuseAlbedo;
+	float3 uvw = float3(pin.TexC, pin.PrimID%4);
+	float4 diffuseAlbedo = gTreeMapArray.Sample(gsamAnisotropicWrap, uvw) * gMaterialConstants.gDiffuseAlbedo;
 	
 #ifdef ALPHA_TEST
 	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
@@ -179,24 +239,24 @@ float4 PS(GeoOut pin) : SV_Target
     pin.NormalW = normalize(pin.NormalW);
 
     // Vector from point being lit to eye. 
-	float3 toEyeW = gEyePosW - pin.PosW;
+	float3 toEyeW = gPassConstants.gEyePosW - pin.PosW;
 	float distToEye = length(toEyeW);
 	toEyeW /= distToEye; // normalize
 
     // Light terms.
-    float4 ambient = gAmbientLight*diffuseAlbedo;
+    float4 ambient = gPassConstants.gAmbientLight * diffuseAlbedo;
 
-    const float shininess = 1.0f - gRoughness;
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess };
+    const float shininess = 1.0f - gMaterialConstants.gRoughness;
+    Material mat = { diffuseAlbedo, gMaterialConstants.gFresnelR0, shininess };
     float3 shadowFactor = 1.0f;
-    float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
+    float4 directLight = ComputeLighting(gPassConstants.gLights, mat, pin.PosW,
         pin.NormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;
 
 #ifdef FOG
-	float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-	litColor = lerp(litColor, gFogColor, fogAmount);
+	float fogAmount = saturate((distToEye - gPassConstants.gFogStart) / gPassConstants.gFogRange);
+    litColor = lerp(litColor, gPassConstants.gFogColor, fogAmount);
 #endif
 
     // Common convention to take alpha from diffuse albedo.
