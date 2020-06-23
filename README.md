@@ -33,7 +33,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 11 Stenciling
   * StencilDemo : Render a scene with a wall, a floor, a mirror and a skull. The mirror can reflect the skull and the shadow of the skull is on the floor.
 * Chapter 12 The Geometry Shader
-  * TreeBillboards : ...
+  * TreeBillboards : This demo is based on the *Blend* demo from the previous chapter, add tree billboards to the scene. Assuming the y-axis is up and the xz-plane is the ground plane, the tree billboards will generally be aligned with the y-axis and just face the camera in the xz-plane.
 * ...
 
 
@@ -114,7 +114,25 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 12 The Geometry Shader
 
-  * [ ] ...
+  * [x] *Exercise_12_01*
+
+    > Consider a circle, drawn with a line strip, in the xz-plane. Expand the line strip into a cylinder with no caps using the geometry shader. To do this, we can create a quad for each line segment in the geometry shader.
+
+  * [ ] *Exercise_12_02*
+
+    > Build and render an icosahedron. Use a geometry shader to subdivide the icosahedron based on its distance d from the camera.
+
+  * [ ] *Exercise_12_03*
+
+    > A simple explosion effect can be simulated by translating triangles in the direction of their face normal as a function of time. Use an icosahedron (not subdivided) as a sample mesh for implementing this effect.
+
+  * [ ] *Exercise_12_04*
+
+    > Write an effect that renders the vertex normals of a mesh as short line segments. After this is implemented, draw the mesh as normal, and then draw the scene again with the normal vector visualization technique so that the normals are rendered on top of the scene. Use the *Blend* demo as a test scene.
+
+  * [ ] *Exercise_12_05*
+
+    > Similar to the previous exercise, write an effect that renders the face normals of a mesh as short line segments.
 
 * ...
 
