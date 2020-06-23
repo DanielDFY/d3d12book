@@ -118,9 +118,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Consider a circle, drawn with a line strip, in the xz-plane. Expand the line strip into a cylinder with no caps using the geometry shader. To do this, we can create a quad for each line segment in the geometry shader.
 
-  * [ ] *Exercise_12_02*
+  * [x] *Exercise_12_02*
 
-    > Build and render an icosahedron. Use a geometry shader to subdivide the icosahedron based on its distance d from the camera.
+    > Build and render an icosahedron. Use a geometry shader to subdivide the icosahedron based on its distance d from the camera. If d < 15, then subdivide the original icosahedron twice; if 15 ≤ d < 30 , then subdivide the original icosahedron once; if d ≥ 30, then just render the original icosahedron.
 
   * [ ] *Exercise_12_03*
 

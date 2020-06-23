@@ -1,5 +1,5 @@
 //***************************************************************************************
-// Exercise_12_01 CircleToCylinderApp.cpp by DanielDFY.
+// Exercise_12_01 IcosahedronApp.cpp by DanielDFY.
 //***************************************************************************************
 
 #include "../../Common/d3dApp.h"
@@ -46,12 +46,12 @@ struct RenderItem {
 	UINT BaseVertexLocation = 0;
 };
 
-class CircleToCylinderApp : public D3DApp {
+class IcosahedronApp : public D3DApp {
 public:
-	CircleToCylinderApp(HINSTANCE hInstance);
-	CircleToCylinderApp(const CircleToCylinderApp& rhs) = delete;
-	CircleToCylinderApp& operator=(const CircleToCylinderApp& rhs) = delete;
-	~CircleToCylinderApp();
+	IcosahedronApp(HINSTANCE hInstance);
+	IcosahedronApp(const IcosahedronApp& rhs) = delete;
+	IcosahedronApp& operator=(const IcosahedronApp& rhs) = delete;
+	~IcosahedronApp();
 
 	bool Initialize() override;
 
@@ -70,7 +70,7 @@ private:
 
 	void BuildRootSignature();
 	void BuildShadersAndInputLayouts();
-	void BuildCircleGeometry();
+	void BuildIcosahedronGeometry();
 	void BuildRenderItem();
 	void BuildFrameResources();
 	void BuildPSO();
@@ -82,13 +82,13 @@ private:
 
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
-	std::unique_ptr<MeshGeometry> mCircleGeometry = nullptr;
+	std::unique_ptr<MeshGeometry> mIcosahedronGeometry = nullptr;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
 	ComPtr<ID3D12PipelineState> mPSO;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
-	std::unique_ptr<RenderItem> mCircleRenderItem = nullptr;
+	std::unique_ptr<RenderItem> mIcosahedronRenderItem = nullptr;
 
 	PassConstants mMainPassCB;
 
@@ -109,7 +109,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	#endif
 
 	try {
-		CircleToCylinderApp theApp(hInstance);
+		IcosahedronApp theApp(hInstance);
 		if (!theApp.Initialize())
 			return 0;
 
@@ -121,15 +121,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	}
 }
 
-CircleToCylinderApp::CircleToCylinderApp(HINSTANCE hInstance)
+IcosahedronApp::IcosahedronApp(HINSTANCE hInstance)
 : D3DApp(hInstance) { }
 
-CircleToCylinderApp::~CircleToCylinderApp() {
+IcosahedronApp::~IcosahedronApp() {
 	if (md3dDevice != nullptr)
 		FlushCommandQueue();
 }
 
-bool CircleToCylinderApp::Initialize() {
+bool IcosahedronApp::Initialize() {
 	if (!D3DApp::Initialize())
 		return false;
 
@@ -138,7 +138,7 @@ bool CircleToCylinderApp::Initialize() {
 
 	BuildRootSignature();
 	BuildShadersAndInputLayouts();
-	BuildCircleGeometry();
+	BuildIcosahedronGeometry();
 	BuildRenderItem();
 	BuildFrameResources();
 	BuildPSO();
@@ -154,7 +154,7 @@ bool CircleToCylinderApp::Initialize() {
 	return true;
 }
 
-void CircleToCylinderApp::OnResize() {
+void IcosahedronApp::OnResize() {
 	D3DApp::OnResize();
 
 	// The window resized, so update the aspect ratio and recompute the projection matrix.
@@ -162,7 +162,7 @@ void CircleToCylinderApp::OnResize() {
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void CircleToCylinderApp::Update(const GameTimer& gt) {
+void IcosahedronApp::Update(const GameTimer& gt) {
 	UpdateCamera(gt);
 
 	// Cycle through the circular frame resource array.
@@ -182,7 +182,7 @@ void CircleToCylinderApp::Update(const GameTimer& gt) {
 	UpdateMainPassCB(gt);
 }
 
-void CircleToCylinderApp::Draw(const GameTimer& gt) {
+void IcosahedronApp::Draw(const GameTimer& gt) {
 	auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
 	// Reuse the memory associated with command recording.
@@ -211,12 +211,12 @@ void CircleToCylinderApp::Draw(const GameTimer& gt) {
 	mCommandList->SetGraphicsRootConstantBufferView(0, mCurrFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress());
 	mCommandList->SetGraphicsRootConstantBufferView(1, mCurrFrameResource->PassCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->IASetVertexBuffers(0, 1, &mCircleRenderItem->Geo->VertexBufferView());
-	mCommandList->IASetIndexBuffer(&mCircleRenderItem->Geo->IndexBufferView());
-	mCommandList->IASetPrimitiveTopology(mCircleRenderItem->PrimitiveType);
+	mCommandList->IASetVertexBuffers(0, 1, &mIcosahedronRenderItem->Geo->VertexBufferView());
+	mCommandList->IASetIndexBuffer(&mIcosahedronRenderItem->Geo->IndexBufferView());
+	mCommandList->IASetPrimitiveTopology(mIcosahedronRenderItem->PrimitiveType);
 
-	mCommandList->DrawIndexedInstanced(mCircleRenderItem->IndexCount, 1,
-		mCircleRenderItem->StartIndexLocation, mCircleRenderItem->BaseVertexLocation, 0);
+	mCommandList->DrawIndexedInstanced(mIcosahedronRenderItem->IndexCount, 1,
+		mIcosahedronRenderItem->StartIndexLocation, mIcosahedronRenderItem->BaseVertexLocation, 0);
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -242,18 +242,18 @@ void CircleToCylinderApp::Draw(const GameTimer& gt) {
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void CircleToCylinderApp::OnMouseDown(WPARAM btnState, int x, int y) {
+void IcosahedronApp::OnMouseDown(WPARAM btnState, int x, int y) {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 
 	SetCapture(mhMainWnd);
 }
 
-void CircleToCylinderApp::OnMouseUp(WPARAM btnState, int x, int y) {
+void IcosahedronApp::OnMouseUp(WPARAM btnState, int x, int y) {
 	ReleaseCapture();
 }
 
-void CircleToCylinderApp::OnMouseMove(WPARAM btnState, int x, int y) {
+void IcosahedronApp::OnMouseMove(WPARAM btnState, int x, int y) {
 	if ((btnState & MK_LBUTTON) != 0) {
 		// Make each pixel correspond to a quarter of a degree.
 		const float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
@@ -282,7 +282,7 @@ void CircleToCylinderApp::OnMouseMove(WPARAM btnState, int x, int y) {
 	mLastMousePos.y = y;
 }
 
-void CircleToCylinderApp::UpdateCamera(const GameTimer& gt) {
+void IcosahedronApp::UpdateCamera(const GameTimer& gt) {
 	// Convert Spherical to Cartesian coordinates.
 	mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
 	mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
@@ -297,25 +297,25 @@ void CircleToCylinderApp::UpdateCamera(const GameTimer& gt) {
 	XMStoreFloat4x4(&mView, view);
 }
 
-void CircleToCylinderApp::UpdateObjectCBs(const GameTimer& gt) {
+void IcosahedronApp::UpdateObjectCBs(const GameTimer& gt) {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 		
 	// Only update the cbuffer data if the constants have changed.  
 		// This needs to be tracked per frame resource.
-	if (mCircleRenderItem->NumFramesDirty > 0) {
-		XMMATRIX world = XMLoadFloat4x4(&mCircleRenderItem->World);
+	if (mIcosahedronRenderItem->NumFramesDirty > 0) {
+		XMMATRIX world = XMLoadFloat4x4(&mIcosahedronRenderItem->World);
 
 		ObjectConstants objConstants;
 		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 
-		currObjectCB->CopyData(mCircleRenderItem->ObjCBIndex, objConstants);
+		currObjectCB->CopyData(mIcosahedronRenderItem->ObjCBIndex, objConstants);
 
 		// Next FrameResource need to be updated too.
-		mCircleRenderItem->NumFramesDirty--;
+		mIcosahedronRenderItem->NumFramesDirty--;
 	}
 }
 
-void CircleToCylinderApp::UpdateMainPassCB(const GameTimer& gt) {
+void IcosahedronApp::UpdateMainPassCB(const GameTimer& gt) {
 	const XMMATRIX view = XMLoadFloat4x4(&mView);
 	const XMMATRIX proj = XMLoadFloat4x4(&mProj);
 
@@ -349,7 +349,7 @@ void CircleToCylinderApp::UpdateMainPassCB(const GameTimer& gt) {
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
-void CircleToCylinderApp::BuildRootSignature() {
+void IcosahedronApp::BuildRootSignature() {
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[2];
 
@@ -380,7 +380,7 @@ void CircleToCylinderApp::BuildRootSignature() {
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
-void CircleToCylinderApp::BuildShadersAndInputLayouts() {
+void IcosahedronApp::BuildShadersAndInputLayouts() {
 	mShaders["VS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["GS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "GS", "gs_5_1");
 	mShaders["PS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "PS", "ps_5_1");
@@ -392,73 +392,71 @@ void CircleToCylinderApp::BuildShadersAndInputLayouts() {
 	};
 }
 
-void CircleToCylinderApp::BuildCircleGeometry() {
-	constexpr int subdivisionCount = 20;
-	constexpr float radius = 10.0f;
+void IcosahedronApp::BuildIcosahedronGeometry() {
+	constexpr int subdivisionCount = 0;
+	constexpr float radius = 5.0f;
 
-	std::vector<Vertex> vertices(subdivisionCount + 1);
-	std::vector<std::uint16_t> indices(subdivisionCount + 1);
+	GeometryGenerator geometryGenerator;
+	GeometryGenerator::MeshData icosahedron = geometryGenerator.CreateGeosphere(radius, subdivisionCount);
 
-	for (int i = 0; i <= subdivisionCount; ++i) {
-		const float angle = (static_cast<float>(i) * XM_2PI) / subdivisionCount;
-		const float x = radius * cosf(angle);
-		const float z = radius * sinf(angle);
-
-		vertices[i].Pos = { x, 0.0f, z };
+	std::vector<Vertex> vertices(icosahedron.Vertices.size());
+	
+	for (int i = 0; i < icosahedron.Vertices.size(); ++i) {
+		vertices[i].Pos = icosahedron.Vertices[i].Position;
 		vertices[i].Color = XMFLOAT4(Colors::Black);
-
-		indices[i] = i;
 	}
+
+	std::vector<std::uint16_t> indices = icosahedron.GetIndices16();
 
 	const UINT vertexBufferByteSize = static_cast<UINT>(vertices.size()) * sizeof(Vertex);
 	const UINT indexBufferByteSize = static_cast<UINT>(indices.size()) * sizeof(std::uint16_t);
 
-	mCircleGeometry = std::make_unique<MeshGeometry>();
-	mCircleGeometry->Name = "circleGeo";
+	mIcosahedronGeometry = std::make_unique<MeshGeometry>();
+	mIcosahedronGeometry->Name = "icosahedronGeo";
 
-	ThrowIfFailed(D3DCreateBlob(vertexBufferByteSize, mCircleGeometry->VertexBufferCPU.GetAddressOf()));
-	CopyMemory(mCircleGeometry->VertexBufferCPU->GetBufferPointer(), vertices.data(), vertexBufferByteSize);
+	ThrowIfFailed(D3DCreateBlob(vertexBufferByteSize, mIcosahedronGeometry->VertexBufferCPU.GetAddressOf()));
+	CopyMemory(mIcosahedronGeometry->VertexBufferCPU->GetBufferPointer(), vertices.data(), vertexBufferByteSize);
 
-	ThrowIfFailed(D3DCreateBlob(indexBufferByteSize, mCircleGeometry->IndexBufferCPU.GetAddressOf()));
-	CopyMemory(mCircleGeometry->IndexBufferCPU->GetBufferPointer(), indices.data(), indexBufferByteSize);
+	ThrowIfFailed(D3DCreateBlob(indexBufferByteSize, mIcosahedronGeometry->IndexBufferCPU.GetAddressOf()));
+	CopyMemory(mIcosahedronGeometry->IndexBufferCPU->GetBufferPointer(), indices.data(), indexBufferByteSize);
 
-	mCircleGeometry->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(), mCommandList.Get(),
-		vertices.data(), vertexBufferByteSize, mCircleGeometry->VertexBufferUploader);
+	mIcosahedronGeometry->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(), mCommandList.Get(),
+		vertices.data(), vertexBufferByteSize, mIcosahedronGeometry->VertexBufferUploader);
 
-	mCircleGeometry->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(), mCommandList.Get(),
-		indices.data(), indexBufferByteSize, mCircleGeometry->IndexBufferUploader);
+	mIcosahedronGeometry->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(), mCommandList.Get(),
+		indices.data(), indexBufferByteSize, mIcosahedronGeometry->IndexBufferUploader);
 
-	mCircleGeometry->VertexByteStride = sizeof(Vertex);
-	mCircleGeometry->VertexBufferByteSize = vertexBufferByteSize;
-	mCircleGeometry->IndexFormat = DXGI_FORMAT_R16_UINT;
-	mCircleGeometry->IndexBufferByteSize = indexBufferByteSize;
+	mIcosahedronGeometry->VertexByteStride = sizeof(Vertex);
+	mIcosahedronGeometry->VertexBufferByteSize = vertexBufferByteSize;
+	mIcosahedronGeometry->IndexFormat = DXGI_FORMAT_R16_UINT;
+	mIcosahedronGeometry->IndexBufferByteSize = indexBufferByteSize;
 
 	SubmeshGeometry submeshGeometry;
 	submeshGeometry.IndexCount = static_cast<UINT>(indices.size());
 	submeshGeometry.StartIndexLocation = 0;
 	submeshGeometry.BaseVertexLocation = 0;
 
-	mCircleGeometry->DrawArgs["circle"] = submeshGeometry;
+	mIcosahedronGeometry->DrawArgs["icosahedron"] = submeshGeometry;
 }
 
-void CircleToCylinderApp::BuildRenderItem() {
-	mCircleRenderItem = std::make_unique<RenderItem>();
-	mCircleRenderItem->World = MathHelper::Identity4x4();
-	mCircleRenderItem->ObjCBIndex = 0;
-	mCircleRenderItem->Geo = mCircleGeometry.get();
-	mCircleRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
-	mCircleRenderItem->IndexCount = mCircleRenderItem->Geo->DrawArgs["circle"].IndexCount;
-	mCircleRenderItem->StartIndexLocation = mCircleRenderItem->Geo->DrawArgs["circle"].StartIndexLocation;
-	mCircleRenderItem->BaseVertexLocation = mCircleRenderItem->Geo->DrawArgs["circle"].BaseVertexLocation;
+void IcosahedronApp::BuildRenderItem() {
+	mIcosahedronRenderItem = std::make_unique<RenderItem>();
+	mIcosahedronRenderItem->World = MathHelper::Identity4x4();
+	mIcosahedronRenderItem->ObjCBIndex = 0;
+	mIcosahedronRenderItem->Geo = mIcosahedronGeometry.get();
+	mIcosahedronRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	mIcosahedronRenderItem->IndexCount = mIcosahedronRenderItem->Geo->DrawArgs["icosahedron"].IndexCount;
+	mIcosahedronRenderItem->StartIndexLocation = mIcosahedronRenderItem->Geo->DrawArgs["icosahedron"].StartIndexLocation;
+	mIcosahedronRenderItem->BaseVertexLocation = mIcosahedronRenderItem->Geo->DrawArgs["icosahedron"].BaseVertexLocation;
 }
 
-void CircleToCylinderApp::BuildFrameResources() {
+void IcosahedronApp::BuildFrameResources() {
 	for (int i = 0; i < gNumFrameResources; ++i) {
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(), 1, 1));
 	}
 }
 
-void CircleToCylinderApp::BuildPSO() {
+void IcosahedronApp::BuildPSO() {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueLinePsoDesc;
 	ZeroMemory(&opaqueLinePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	opaqueLinePsoDesc.InputLayout = { mInputLayout.data(), static_cast<UINT>(mInputLayout.size()) };
@@ -479,10 +477,11 @@ void CircleToCylinderApp::BuildPSO() {
 		mShaders["PS"]->GetBufferSize()
 	};
 	opaqueLinePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	opaqueLinePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	opaqueLinePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaqueLinePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	opaqueLinePsoDesc.SampleMask = UINT_MAX;
-	opaqueLinePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	opaqueLinePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	opaqueLinePsoDesc.NumRenderTargets = 1;
 	opaqueLinePsoDesc.RTVFormats[0] = mBackBufferFormat;
 	opaqueLinePsoDesc.SampleDesc.Count = 1;
