@@ -122,9 +122,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Build and render an icosahedron. Use a geometry shader to subdivide the icosahedron based on its distance d from the camera. If d < 15, then subdivide the original icosahedron twice; if 15 ≤ d < 30 , then subdivide the original icosahedron once; if d ≥ 30, then just render the original icosahedron.
 
-  * [ ] *Exercise_12_03*
+  * [x] *Exercise_12_03*
 
-    > A simple explosion effect can be simulated by translating triangles in the direction of their face normal as a function of time. Use an icosahedron (not subdivided) as a sample mesh for implementing this effect.
+    > A simple explosion effect can be simulated by translating triangles in the direction of their face normal as a function of time. Use an icosahedron (not subdivided) as a sample mesh for implementing this effect. The normal vector of a triangle can be calculated by the cross product of two its edges (be careful of the direction of the normal vector);
 
   * [ ] *Exercise_12_04*
 

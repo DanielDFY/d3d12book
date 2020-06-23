@@ -135,6 +135,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_12_01", "Chapter 1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_12_02", "Chapter 12 The Geometry Shader\Exercise_12_02\Exercise_12_02.vcxproj", "{DD619F4D-CE5D-4242-A03C-CDCEBD7CEA9D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_12_03", "Chapter 12 The Geometry Shader\Exercise_12_03\Exercise_12_03.vcxproj", "{5210ABE3-B451-44F9-B763-C1C92FF791B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -501,6 +503,14 @@ Global
 		{DD619F4D-CE5D-4242-A03C-CDCEBD7CEA9D}.Release|x64.Build.0 = Release|x64
 		{DD619F4D-CE5D-4242-A03C-CDCEBD7CEA9D}.Release|x86.ActiveCfg = Release|Win32
 		{DD619F4D-CE5D-4242-A03C-CDCEBD7CEA9D}.Release|x86.Build.0 = Release|Win32
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Debug|x64.ActiveCfg = Debug|x64
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Debug|x64.Build.0 = Debug|x64
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Debug|x86.ActiveCfg = Debug|Win32
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Debug|x86.Build.0 = Debug|Win32
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Release|x64.ActiveCfg = Release|x64
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Release|x64.Build.0 = Release|x64
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Release|x86.ActiveCfg = Release|Win32
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -551,6 +561,7 @@ Global
 		{59C2CDAA-DC8C-4C65-A402-0B716E570FFA} = {357E9794-8FAA-43A0-9315-20A9BDC3A844}
 		{58D37087-C9F1-4CA4-8129-7C0CC2860677} = {DA001A9F-A220-41F9-B8A3-97F2A90FEF41}
 		{DD619F4D-CE5D-4242-A03C-CDCEBD7CEA9D} = {DA001A9F-A220-41F9-B8A3-97F2A90FEF41}
+		{5210ABE3-B451-44F9-B763-C1C92FF791B3} = {DA001A9F-A220-41F9-B8A3-97F2A90FEF41}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60DAF673-9108-4394-9DAC-E93E4555DC7D}

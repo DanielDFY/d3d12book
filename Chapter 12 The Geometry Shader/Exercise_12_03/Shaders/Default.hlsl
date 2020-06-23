@@ -1,5 +1,5 @@
 //***************************************************************************************
-// Exercise_12_01 Default.hlsl by DanielDFY
+// Exercise_12_03 Default.hlsl by DanielDFY
 //***************************************************************************************
 
 // Update to Shader Model 5.1
@@ -85,30 +85,34 @@ VertexOut VS(VertexIn vin) {
     float4 posW = mul(float4(vin.PosL, 1.0f), gObjectConstants.gWorld);
     vout.PosW = posW.xyz;
 
+    vout.Color = vin.Color;
+
     return vout;
 }
 
-[maxvertexcount(4)]
-void GS(line VertexOut gin[2], inout LineStream<GeoOut> lineStream) {
-    float4 offsetVector = { 0.0f, 10.0f, 0.0f, 0.0f };
+[maxvertexcount(3)]
+void GS(triangle VertexOut gin[3],
+    inout TriangleStream<GeoOut> triangleStream) {
+    
+    float speed = 1.5f;
     float4 color = gin[0].Color;
 
-    // Generate quad from line
-    float4 v[4];
-    v[0] = float4(gin[0].PosW, 1.0f);
-    v[1] = float4(gin[1].PosW, 1.0f);
-    v[2] = v[1] + offsetVector;
-    v[3] = v[0] + offsetVector;
+    // Calculate the normal vector of each triangle
+    float3 edge1 = float3(gin[1].PosW - gin[0].PosW);
+    float3 edge2 = float3(gin[2].PosW - gin[0].PosW);
+    float3 normal = normalize(cross(edge1, edge2));
 
     GeoOut geoOut;
     [unroll]
-    for (int i = 0; i < 4; ++i) {
-        geoOut.PosH = mul(v[i], gPassConstants.gViewProj);
-        geoOut.PosW = v[i].xyz;
+    for (int i = 0; i < 3; ++i) {
+        // transform the triangle towards the normal vector
+        geoOut.PosW = gin[i].PosW + speed * gPassConstants.gTotalTime * normal;
+        geoOut.PosH = mul(float4(geoOut.PosW, 1.0), gPassConstants.gViewProj);
         geoOut.Color = color;
 
-        lineStream.Append(geoOut);
+        triangleStream.Append(geoOut);
     }
+    triangleStream.RestartStrip();
 }
 
 float4 PS(GeoOut pin) : SV_Target

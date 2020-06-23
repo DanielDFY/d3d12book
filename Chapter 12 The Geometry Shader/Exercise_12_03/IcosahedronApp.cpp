@@ -1,5 +1,5 @@
 //***************************************************************************************
-// Exercise_12_02 IcosahedronApp.cpp by DanielDFY.
+// Exercise_12_03 IcosahedronApp.cpp by DanielDFY.
 //***************************************************************************************
 
 #include "../../Common/d3dApp.h"
@@ -393,7 +393,7 @@ void IcosahedronApp::BuildShadersAndInputLayouts() {
 }
 
 void IcosahedronApp::BuildIcosahedronGeometry() {
-	constexpr int subdivisionCount = 0;
+	constexpr int subdivisionCount = 2;
 	constexpr float radius = 5.0f;
 
 	GeometryGenerator geometryGenerator;
@@ -478,6 +478,7 @@ void IcosahedronApp::BuildPSO() {
 	};
 	opaqueLinePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	opaqueLinePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	opaqueLinePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	opaqueLinePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaqueLinePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	opaqueLinePsoDesc.SampleMask = UINT_MAX;
