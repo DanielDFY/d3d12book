@@ -29,13 +29,14 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *TexColumns* : This demo is based on the *LitColumns* demo from the previous chapter, adding textures to the ground, columns and spheres.
   * *TexWaves* : This demo is based on the *LitWaves* demo from the previous chapter, adding textures to the land and water. Also the water texture scrolls over the water geometry as a function of time.
 * Chapter 10 Blending
-  * BlendDemo : This demo is based on the *TexWaves* demo from the previous chapter, adding blending effect to the land and water. Also add fog to the scene.
+  * *BlendDemo* : This demo is based on the *TexWaves* demo from the previous chapter, adding blending effect to the land and water. Also add fog to the scene.
 * Chapter 11 Stenciling
-  * StencilDemo : Render a scene with a wall, a floor, a mirror and a skull. The mirror can reflect the skull and the shadow of the skull is on the floor.
+  * *StencilDemo* : Render a scene with a wall, a floor, a mirror and a skull. The mirror can reflect the skull and the shadow of the skull is on the floor.
 * Chapter 12 The Geometry Shader
-  * TreeBillboards : This demo is based on the *Blend* demo from the previous chapter, add tree billboards to the scene. Assuming the y-axis is up and the xz-plane is the ground plane, the tree billboards will generally be aligned with the y-axis and just face the camera in the xz-plane.
+  * *TreeBillboards* : This demo is based on the *Blend* demo from the previous chapter, add tree billboards to the scene. Assuming the y-axis is up and the xz-plane is the ground plane, the tree billboards will generally be aligned with the y-axis and just face the camera in the xz-plane.
 * Chapter 13 The Compute Shader
-  * 
+  * *VecAdd* : Use compute shader to add up vectors.
+  * *Blur* : This demo is based on the *BlendDemo* demo from Chapter 10, adding blur effect to the whole screen with the help of compute shader.
 * ...
 
 
@@ -137,6 +138,10 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
     > In this demo, press '1' to visualize vertex normals, press '2' to visualize face normals,  press '3' to switch to wire frame mode.   
 
 * Chapter 13 The Compute Shader
+
+  * [ ] *Exercise_13_01*
+
+    > Write a compute shader that inputs a structured buffer of sixty-four 3D vectors with random magnitudes contained in [1, 10]. The compute shader computes the length of the vectors and outputs the result into a floating-point buffer. Copy the results to CPU memory and save the results to file.
 
   * [ ] ...
 

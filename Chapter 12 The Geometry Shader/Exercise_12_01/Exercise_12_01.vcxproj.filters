@@ -39,6 +39,9 @@
     <ClInclude Include="FrameResource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common\d3dx12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\d3dApp.cpp">
@@ -64,11 +67,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Default.hlsl">
-      <Filter>着色器文件</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\LightingUtil.hlsl">
-      <Filter>着色器文件</Filter>
-    </FxCompile>
+    <None Include="Shaders\Default.hlsl" />
+    <None Include="Shaders\LightingUtil.hlsl" />
   </ItemGroup>
 </Project>

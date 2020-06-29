@@ -14,14 +14,28 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="着色器文件">
-      <UniqueIdentifier>{f084e2cc-10d5-497b-9b43-b164fdb7a4a5}</UniqueIdentifier>
+      <UniqueIdentifier>{b38fc8aa-686f-4720-9bfc-a55724123dbd}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\VecLength.hlsl">
+      <Filter>着色器文件</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VecLength(Buffer).hlsl">
+      <Filter>着色器文件</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\d3dUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\d3dx12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\DDSTextureLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\GameTimer.h">
@@ -39,15 +53,15 @@
     <ClInclude Include="FrameResource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common\d3dx12.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\d3dApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\d3dUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\DDSTextureLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\GameTimer.cpp">
@@ -62,12 +76,8 @@
     <ClCompile Include="FrameResource.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="IcosahedronApp.cpp">
+    <ClCompile Include="VecLengthCSApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\Default.hlsl" />
-    <None Include="Shaders\LightingUtil.hlsl" />
   </ItemGroup>
 </Project>

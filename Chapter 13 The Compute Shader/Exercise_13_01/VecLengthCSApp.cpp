@@ -1,5 +1,5 @@
 //***************************************************************************************
-// VecAddCSApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
+// VecLengthCSApp.cpp by DanielDFY
 //***************************************************************************************
 
 #include "../../Common/d3dApp.h"
@@ -7,6 +7,18 @@
 #include "../../Common/UploadBuffer.h"
 #include "../../Common/GeometryGenerator.h"
 #include "FrameResource.h"
+
+#include <ctime>
+#include <iomanip>
+
+// control buffer types
+enum class BufferType {
+	DefaultBuffer = 0,
+	TypedBuffer,
+	AppendConsumeBuffer
+};
+
+constexpr auto chooseBufferType = BufferType::DefaultBuffer;
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -17,10 +29,12 @@ using namespace DirectX::PackedVector;
 
 const int gNumFrameResources = 3;
 
-struct Data
-{
-	XMFLOAT3 v1;
-	XMFLOAT2 v2;
+struct InputData {
+	XMFLOAT3 v;
+};
+
+struct OutputData {
+	float length;
 };
 
 // Lightweight structure stores parameters to draw a shape.  This will
@@ -65,24 +79,24 @@ enum class RenderLayer : int
 	Count
 };
 
-class VecAddCSApp : public D3DApp
+class VecLengthCSApp : public D3DApp
 {
 public:
-    VecAddCSApp(HINSTANCE hInstance);
-    VecAddCSApp(const VecAddCSApp& rhs) = delete;
-    VecAddCSApp& operator=(const VecAddCSApp& rhs) = delete;
-    ~VecAddCSApp();
+	VecLengthCSApp(HINSTANCE hInstance);
+	VecLengthCSApp(const VecLengthCSApp& rhs) = delete;
+	VecLengthCSApp& operator=(const VecLengthCSApp& rhs) = delete;
+    ~VecLengthCSApp();
 
-    virtual bool Initialize()override;
+    bool Initialize() override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+    void OnResize()override;
+    void Update(const GameTimer& gt)override;
+    void Draw(const GameTimer& gt)override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    void OnMouseDown(WPARAM btnState, int x, int y) override;
+    void OnMouseUp(WPARAM btnState, int x, int y) override;
+    void OnMouseMove(WPARAM btnState, int x, int y) override;
 
 	void DoComputeWork();
 
@@ -123,12 +137,12 @@ private:
 	// Render items divided by PSO.
 	std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
 
-	const int NumDataElements = 32;
+	const int NumDataElements = 64;
 
-	ComPtr<ID3D12Resource> mInputBufferA = nullptr;
-	ComPtr<ID3D12Resource> mInputUploadBufferA = nullptr;
-	ComPtr<ID3D12Resource> mInputBufferB = nullptr;
-	ComPtr<ID3D12Resource> mInputUploadBufferB = nullptr;
+	std::vector<InputData> mInputData;
+
+	ComPtr<ID3D12Resource> mInputBuffer = nullptr;
+	ComPtr<ID3D12Resource> mInputUploadBuffer = nullptr;
 	ComPtr<ID3D12Resource> mOutputBuffer = nullptr;
 	ComPtr<ID3D12Resource> mReadBackBuffer = nullptr;
 
@@ -155,7 +169,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
     try
     {
-        VecAddCSApp theApp(hInstance);
+		VecLengthCSApp theApp(hInstance);
         if(!theApp.Initialize())
             return 0;
 
@@ -168,18 +182,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
     }
 }
 
-VecAddCSApp::VecAddCSApp(HINSTANCE hInstance)
+VecLengthCSApp::VecLengthCSApp(HINSTANCE hInstance)
     : D3DApp(hInstance)
 {
 }
 
-VecAddCSApp::~VecAddCSApp()
+VecLengthCSApp::~VecLengthCSApp()
 {
     if(md3dDevice != nullptr)
         FlushCommandQueue();
 }
 
-bool VecAddCSApp::Initialize()
+bool VecLengthCSApp::Initialize()
 {
     if(!D3DApp::Initialize())
         return false;
@@ -211,7 +225,7 @@ bool VecAddCSApp::Initialize()
     return true;
 }
  
-void VecAddCSApp::OnResize()
+void VecLengthCSApp::OnResize()
 {
     D3DApp::OnResize();
 
@@ -220,7 +234,7 @@ void VecAddCSApp::OnResize()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void VecAddCSApp::Update(const GameTimer& gt)
+void VecLengthCSApp::Update(const GameTimer& gt)
 {
     // Cycle through the circular frame resource array.
     mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
@@ -237,7 +251,7 @@ void VecAddCSApp::Update(const GameTimer& gt)
     }
 }
 
-void VecAddCSApp::Draw(const GameTimer& gt)
+void VecLengthCSApp::Draw(const GameTimer& gt)
 {
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -263,8 +277,6 @@ void VecAddCSApp::Draw(const GameTimer& gt)
     // Specify the buffers we are going to render to.
     mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-
-
     // Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -289,7 +301,7 @@ void VecAddCSApp::Draw(const GameTimer& gt)
     mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void VecAddCSApp::OnMouseDown(WPARAM btnState, int x, int y)
+void VecLengthCSApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -297,12 +309,12 @@ void VecAddCSApp::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void VecAddCSApp::OnMouseUp(WPARAM btnState, int x, int y)
+void VecLengthCSApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void VecAddCSApp::OnMouseMove(WPARAM btnState, int x, int y)
+void VecLengthCSApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if((btnState & MK_LBUTTON) != 0)
     {
@@ -334,7 +346,7 @@ void VecAddCSApp::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
  
-void VecAddCSApp::DoComputeWork()
+void VecLengthCSApp::DoComputeWork()
 {
 	// Reuse the memory associated with command recording.
 	// We can only reset when the associated command lists have finished execution on the GPU.
@@ -342,13 +354,12 @@ void VecAddCSApp::DoComputeWork()
 
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
-	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), mPSOs["vecAdd"].Get()));
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), mPSOs["vecLength"].Get()));
 
 	mCommandList->SetComputeRootSignature(mRootSignature.Get());
 
-	mCommandList->SetComputeRootShaderResourceView(0, mInputBufferA->GetGPUVirtualAddress());
-	mCommandList->SetComputeRootShaderResourceView(1, mInputBufferB->GetGPUVirtualAddress());
-	mCommandList->SetComputeRootUnorderedAccessView(2, mOutputBuffer->GetGPUVirtualAddress());
+	mCommandList->SetComputeRootShaderResourceView(0, mInputBuffer->GetGPUVirtualAddress());
+	mCommandList->SetComputeRootUnorderedAccessView(1, mOutputBuffer->GetGPUVirtualAddress());
  
 	mCommandList->Dispatch(1, 1, 1);
 
@@ -372,56 +383,62 @@ void VecAddCSApp::DoComputeWork()
 	FlushCommandQueue();
 
 	// Map the data so we can read it on CPU.
-	Data* mappedData = nullptr;
+	OutputData* mappedData = nullptr;
 	ThrowIfFailed(mReadBackBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)));
 
 	std::ofstream fout("results.txt");
+	fout << std::setprecision(4);
 
 	for(int i = 0; i < NumDataElements; ++i)
 	{
-		fout << "(" << mappedData[i].v1.x << ", " << mappedData[i].v1.y << ", " << mappedData[i].v1.z <<
-			", " << mappedData[i].v2.x << ", " << mappedData[i].v2.y << ")" << std::endl;
+		// output each original vector and its length
+		fout << "{ "
+			<< mInputData[i].v.x << ", "
+			<< mInputData[i].v.y << ", "
+			<< mInputData[i].v.z << "} "
+			<< mappedData[i].length
+			<< std::endl;
 	}
 
 	mReadBackBuffer->Unmap(0, nullptr);
 }
 
-void VecAddCSApp::BuildBuffers()
+void VecLengthCSApp::BuildBuffers()
 {
 	// Generate some data.
-	std::vector<Data> dataA(NumDataElements);
-	std::vector<Data> dataB(NumDataElements);
+	std::vector<InputData> inputData(NumDataElements);
+	mInputData.resize(NumDataElements);
+
+	// reset the seed for each vector
+	srand(static_cast<int>(time(nullptr)));
+	
 	for(int i = 0; i < NumDataElements; ++i)
 	{
-		dataA[i].v1 = XMFLOAT3(i, i, i);
-		dataA[i].v2 = XMFLOAT2(i, 0);
+		const auto length = MathHelper::RandF(1.0f, 10.0f);
+		const auto randomVec3 = length * MathHelper::RandUnitVec3();
 
-		dataB[i].v1 = XMFLOAT3(-i, i, 0.0f);
-		dataB[i].v2 = XMFLOAT2(0, -i);
+		XMStoreFloat3(&inputData[i].v, randomVec3);
+
+		// store the original vector for result checking
+		mInputData[i] = inputData[i];
 	}
 
-	UINT64 byteSize = dataA.size()*sizeof(Data);
+	const UINT64 inputByteSize = inputData.size() * sizeof(InputData);
+	const UINT64 outputByteSize = inputData.size() * sizeof(OutputData);
 
 	// Create some buffers to be used as SRVs.
-	mInputBufferA = d3dUtil::CreateDefaultBuffer(
+	mInputBuffer = d3dUtil::CreateDefaultBuffer(
 		md3dDevice.Get(),
 		mCommandList.Get(),
-		dataA.data(),
-		byteSize,
-		mInputUploadBufferA);
-
-	mInputBufferB = d3dUtil::CreateDefaultBuffer(
-		md3dDevice.Get(),
-		mCommandList.Get(),
-		dataB.data(),
-		byteSize,
-		mInputUploadBufferB);
+		inputData.data(),
+		inputByteSize,
+		mInputUploadBuffer);
 
 	// Create the buffer that will be a UAV.
 	ThrowIfFailed(md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(byteSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+		&CD3DX12_RESOURCE_DESC::Buffer(outputByteSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(&mOutputBuffer)));
@@ -429,26 +446,25 @@ void VecAddCSApp::BuildBuffers()
 	ThrowIfFailed(md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(byteSize),
+		&CD3DX12_RESOURCE_DESC::Buffer(outputByteSize),
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&mReadBackBuffer)));
 }
 
-void VecAddCSApp::BuildRootSignature()
+void VecLengthCSApp::BuildRootSignature()
 {
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[3];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
 
 	// Perfomance TIP: Order from most frequent to least frequent.
 	slotRootParameter[0].InitAsShaderResourceView(0);
-    slotRootParameter[1].InitAsShaderResourceView(1);
-    slotRootParameter[2].InitAsUnorderedAccessView(0);
+    slotRootParameter[1].InitAsUnorderedAccessView(0);
 
     // A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter,
 		0, nullptr,
-		D3D12_ROOT_SIGNATURE_FLAG_NONE);
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -469,30 +485,30 @@ void VecAddCSApp::BuildRootSignature()
         IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
-void VecAddCSApp::BuildDescriptorHeaps()
+void VecLengthCSApp::BuildDescriptorHeaps()
 {
 	
 }
 
-void VecAddCSApp::BuildShadersAndInputLayout()
+void VecLengthCSApp::BuildShadersAndInputLayout()
 {
-	mShaders["vecAddCS"] = d3dUtil::CompileShader(L"Shaders/VecAdd.hlsl", nullptr, "CS", "cs_5_1");
+	mShaders["vecLengthCS"] = d3dUtil::CompileShader(L"Shaders/VecLength.hlsl", nullptr, "CS", "cs_5_1");
 }
 
-void VecAddCSApp::BuildPSOs()
+void VecLengthCSApp::BuildPSOs()
 {
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = mRootSignature.Get();
 	computePsoDesc.CS =
 	{
-		reinterpret_cast<BYTE*>(mShaders["vecAddCS"]->GetBufferPointer()),
-		mShaders["vecAddCS"]->GetBufferSize()
+		reinterpret_cast<BYTE*>(mShaders["vecLengthCS"]->GetBufferPointer()),
+		mShaders["vecLengthCS"]->GetBufferSize()
 	};
 	computePsoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	ThrowIfFailed(md3dDevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&mPSOs["vecAdd"])));
+	ThrowIfFailed(md3dDevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&mPSOs["vecLength"])));
 }
 
-void VecAddCSApp::BuildFrameResources()
+void VecLengthCSApp::BuildFrameResources()
 {
     for(int i = 0; i < gNumFrameResources; ++i)
     {
@@ -501,7 +517,7 @@ void VecAddCSApp::BuildFrameResources()
     }
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> VecAddCSApp::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> VecLengthCSApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  
@@ -557,4 +573,3 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> VecAddCSApp::GetStaticSamplers(
 		linearWrap, linearClamp, 
 		anisotropicWrap, anisotropicClamp };
 }
-
