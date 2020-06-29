@@ -21,9 +21,6 @@
     <FxCompile Include="Shaders\VecLength.hlsl">
       <Filter>着色器文件</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\VecLength(Buffer).hlsl">
-      <Filter>着色器文件</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h">

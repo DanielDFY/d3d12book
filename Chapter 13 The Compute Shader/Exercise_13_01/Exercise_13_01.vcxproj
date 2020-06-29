@@ -44,11 +44,6 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="VecLengthCSApp.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\VecLength(Buffer).hlsl">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
