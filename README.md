@@ -17,7 +17,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 04 Direct3D Initialization
   * *Init Direct3D* : Sample application framework.
 * Chapter 06 Drawing in Direct3D 
-  * *Box* : Render a colored box with movable camera.
+  * *Box* : Render a colored box with a movable camera.
 * Chapter 07 Drawing in Direct3D Part II
   * *Shapes* ：Render a scene composed of spheres, cylinders, a box and a grid.
   * *Land and Waves* :  Emulate rolling land and waving water by modifying the grid. To draw waves, `Dynamic Vertex Buffer` is used to update vertex positions on CPU side as time passes.
@@ -34,6 +34,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * StencilDemo : Render a scene with a wall, a floor, a mirror and a skull. The mirror can reflect the skull and the shadow of the skull is on the floor.
 * Chapter 12 The Geometry Shader
   * TreeBillboards : This demo is based on the *Blend* demo from the previous chapter, add tree billboards to the scene. Assuming the y-axis is up and the xz-plane is the ground plane, the tree billboards will generally be aligned with the y-axis and just face the camera in the xz-plane.
+* Chapter 13 The Compute Shader
+  * 
 * ...
 
 
@@ -126,13 +128,17 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > A simple explosion effect can be simulated by translating triangles in the direction of their face normal as a function of time. Use an icosahedron (not subdivided) as a sample mesh for implementing this effect. The normal vector of a triangle can be calculated by the cross product of two its edges (be careful of the direction of the normal vector);
 
-  * [ ] *Exercise_12_04*
+  * [x] *Exercise_12_04*
 
-    > Write an effect that renders the vertex normals of a mesh as short line segments. After this is implemented, draw the mesh as normal, and then draw the scene again with the normal vector visualization technique so that the normals are rendered on top of the scene. Use the *Blend* demo as a test scene.
+    > Write an effect that renders the vertex normals of a mesh as short line segments. After this is implemented, draw the mesh as normal, and then draw the scene again with the normal vector visualization technique so that the normals are rendered on top of the scene. Use the *Blend* demo as a test scene. Similarly add an effect that renders the face normals of a mesh as short line segments.
+    >
+    > First we create a set of PSOs for wire frame mode to help us to observe the normal vectors, then another two sets of PSOs for vertex normal visualization and face normal visualization. In the geometry shader, calculate the root point(the vertex itself for vertex normal and the triangle center for face normal), move it in the direction of the normal to get the head point, then output this line segment into the output line stream.
+    >
+    > In this demo, press '1' to visualize vertex normals, press '2' to visualize face normals,  press '3' to switch to wire frame mode.   
 
-  * [ ] *Exercise_12_05*
+* Chapter 13 The Compute Shader
 
-    > Similar to the previous exercise, write an effect that renders the face normals of a mesh as short line segments.
+  * [ ] ...
 
-* ...
+* [ ] ...
 
