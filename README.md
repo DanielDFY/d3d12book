@@ -169,11 +169,11 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
     >
     > So we can just add the range kernel part to the existing Gaussian blur shader.
     >
-    > Consider a pixel located at (i,j) that needs to be denoised in image using its neighbouring pixels and one of its neighbouring pixels is located at (k, l). Then, assuming the range and spatial kernels to be Gaussian kernels, the weight assigned for pixel (k, l) to denoise the pixel (i,j) is given by:
+    > Consider a pixel located at `(i,j)` that needs to be denoised in image using its neighbouring pixels and one of its neighbouring pixels is located at `(k, l)`. Then, assuming the range and spatial kernels to be Gaussian kernels, the weight assigned for pixel (k, l) to denoise the pixel `(i,j)` is given by:
     >
     > ![](http://latex.codecogs.com/gif.latex?w(i,j,k,l)%20=%20exp(-\frac{(i%20-%20k)^2%20+%20(j%20-%20l)^2}{2{\sigma_d}^2}%20-%20\frac{{\parallel}I(i,j)%20-%20I(k,l){\parallel}^2}{2{\sigma_r}^2})%20=%20weight[i,j]%20*%20exp(-\frac{{\parallel}I(i,j)%20-%20I(k,l){\parallel}^2}{2{\sigma_r}^2}))
     >
-    > where weight[i,j] has been calculated on the CPU side
+    > where the spacial kernel weight factor `weight[i,j]` has been calculated on the CPU side.
 
   * [ ] ...
 
