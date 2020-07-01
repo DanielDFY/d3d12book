@@ -139,9 +139,41 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 13 The Compute Shader
 
-  * [ ] *Exercise_13_01*
+  * [x] *Exercise_13_01*
 
     > Write a compute shader that inputs a structured buffer of sixty-four 3D vectors with random magnitudes contained in [1, 10]. The compute shader computes the length of the vectors and outputs the result into a floating-point buffer. Copy the results to CPU memory and save the results to file.
+
+  * [x] *Exercise_13_04*
+
+    > Research the bilateral blur technique and implement it on the compute shader. Redo the *Blur* demo using the bilateral blur. 
+    >
+    > The bilateral filter is defined as: 
+    >
+    > ![](http://latex.codecogs.com/gif.latex?I^{filtered}(x)%20=%20\frac{1}{W_p}\sum_{x_i\in\Omega}I(x_i)f_r({\parallel}I(x_i)%20-%20I(x){\parallel})g_s({\parallel}x_i%20-%20x{\parallel})) 
+    >
+    > where:
+    >
+    > ![](http://latex.codecogs.com/gif.latex?I^{filter}) is the filtered image.
+    >
+    > ![](http://latex.codecogs.com/gif.latex?I^) is the original input image to be filtered.
+    >
+    > ![](http://latex.codecogs.com/gif.latex?x)  are the coordinates of the current pixel to be filtered.
+    >
+    > ![](http://latex.codecogs.com/gif.latex?\Omega) is the window centered in ![](http://latex.codecogs.com/gif.latex?x), so ![](http://latex.codecogs.com/gif.latex?x_i\in\Omega) is another pixel.
+    >
+    > ![](http://latex.codecogs.com/gif.latex?f_r) is the range kernel for smoothing differences in intensities (can be a Gaussian function).
+    >
+    > ![](http://latex.codecogs.com/gif.latex?g_s) is the spatial (or domain) kernel for smoothing differences in coordinates (can be a Gaussian function).
+    >
+    > 
+    >
+    > So we can just add the range kernel part to the existing Gaussian blur shader.
+    >
+    > Consider a pixel located at (i,j) that needs to be denoised in image using its neighbouring pixels and one of its neighbouring pixels is located at (k, l). Then, assuming the range and spatial kernels to be Gaussian kernels, the weight assigned for pixel (k, l) to denoise the pixel (i,j) is given by:
+    >
+    > ![](http://latex.codecogs.com/gif.latex?w(i,j,k,l)%20=%20exp(-\frac{(i%20-%20k)^2%20+%20(j%20-%20l)^2}{2{\sigma_d}^2}%20-%20\frac{{\parallel}I(i,j)%20-%20I(k,l){\parallel}^2}{2{\sigma_r}^2})%20=%20weight[i,j]%20*%20exp(-\frac{{\parallel}I(i,j)%20-%20I(k,l){\parallel}^2}{2{\sigma_r}^2}))
+    >
+    > where weight[i,j] has been calculated on the CPU side
 
   * [ ] ...
 
