@@ -864,15 +864,15 @@ void SobelApp::BuildShadersAndInputLayout()
 		NULL, NULL
 	};
 
-	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	mShaders["wavesVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", waveDefines, "VS", "vs_5_0");
-	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", defines, "PS", "ps_5_0");
-	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_0");
-	mShaders["wavesUpdateCS"] = d3dUtil::CompileShader(L"Shaders\\WaveSim.hlsl", nullptr, "UpdateWavesCS", "cs_5_0");
-	mShaders["wavesDisturbCS"] = d3dUtil::CompileShader(L"Shaders\\WaveSim.hlsl", nullptr, "DisturbWavesCS", "cs_5_0");
-	mShaders["compositeVS"] = d3dUtil::CompileShader(L"Shaders\\Composite.hlsl", nullptr, "VS", "vs_5_0");
-	mShaders["compositePS"] = d3dUtil::CompileShader(L"Shaders\\Composite.hlsl", nullptr, "PS", "ps_5_0");
-	mShaders["sobelCS"] = d3dUtil::CompileShader(L"Shaders\\Sobel.hlsl", nullptr, "SobelCS", "cs_5_0");
+	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["wavesVS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", waveDefines, "VS", "vs_5_1");
+	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", defines, "PS", "ps_5_1");
+	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
+	mShaders["wavesUpdateCS"] = d3dUtil::CompileShader(L"Shaders/WaveSim.hlsl", nullptr, "UpdateWavesCS", "cs_5_1");
+	mShaders["wavesDisturbCS"] = d3dUtil::CompileShader(L"Shaders/WaveSim.hlsl", nullptr, "DisturbWavesCS", "cs_5_1");
+	mShaders["compositeVS"] = d3dUtil::CompileShader(L"Shaders/Composite.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["compositePS"] = d3dUtil::CompileShader(L"Shaders/Composite.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["sobelCS"] = d3dUtil::CompileShader(L"Shaders/Sobel.hlsl", nullptr, "SobelCS", "cs_5_1");
 
 
     mInputLayout =

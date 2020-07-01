@@ -169,6 +169,28 @@
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SobelFilter.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Textures\grass.dds" />
+    <Image Include="..\..\Textures\water1.dds" />
+    <Image Include="..\..\Textures\WireFence.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Composite.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\Sobel.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shaders\WaveSim.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

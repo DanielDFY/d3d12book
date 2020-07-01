@@ -7,7 +7,10 @@
 //     neighbors to generate a wave. 
 //=============================================================================
 
+// Update to Shader Model 5.1
+
 // For updating the simulation.
+/*
 cbuffer cbUpdateSettings
 {
 	float gWaveConstant0;
@@ -17,6 +20,18 @@ cbuffer cbUpdateSettings
 	float gDisturbMag;
 	int2 gDisturbIndex;
 };
+*/
+
+struct UpdateSettings {
+	float gWaveConstant0;
+	float gWaveConstant1;
+	float gWaveConstant2;
+
+	float gDisturbMag;
+	int2 gDisturbIndex;
+};
+
+ConstantBuffer<UpdateSettings> gUpdateSettings;
  
 RWTexture2D<float> gPrevSolInput : register(u0);
 RWTexture2D<float> gCurrSolInput : register(u1);
@@ -34,9 +49,9 @@ void UpdateWavesCS(int3 dispatchThreadID : SV_DispatchThreadID)
 	int y = dispatchThreadID.y;
 
 	gOutput[int2(x,y)] = 
-		gWaveConstant0 * gPrevSolInput[int2(x,y)].r +
-		gWaveConstant1 * gCurrSolInput[int2(x,y)].r +
-		gWaveConstant2 *(
+		gUpdateSettings.gWaveConstant0 * gPrevSolInput[int2(x,y)].r +
+		gUpdateSettings.gWaveConstant1 * gCurrSolInput[int2(x,y)].r +
+		gUpdateSettings.gWaveConstant2 *(
 			gCurrSolInput[int2(x,y+1)].r + 
 			gCurrSolInput[int2(x,y-1)].r + 
 			gCurrSolInput[int2(x+1,y)].r + 
@@ -52,13 +67,13 @@ void DisturbWavesCS(int3 groupThreadID : SV_GroupThreadID,
 	//    our water simulation is clamped to 0 in local space.
 	//   *out-of-bounds writes are a no-op.
 	
-	int x = gDisturbIndex.x;
-	int y = gDisturbIndex.y;
+	int x = gUpdateSettings.gDisturbIndex.x;
+	int y = gUpdateSettings.gDisturbIndex.y;
 
-	float halfMag = 0.5f*gDisturbMag;
+	float halfMag = 0.5f*gUpdateSettings.gDisturbMag;
 
 	// Buffer is RW so operator += is well defined.
-	gOutput[int2(x,y)]   += gDisturbMag;
+	gOutput[int2(x,y)]   += gUpdateSettings.gDisturbMag;
 	gOutput[int2(x+1,y)] += halfMag;
 	gOutput[int2(x-1,y)] += halfMag;
 	gOutput[int2(x,y+1)] += halfMag;
