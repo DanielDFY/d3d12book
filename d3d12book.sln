@@ -145,6 +145,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_13_04", "Chapter 1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_14_01", "Chapter 14 The Tessellation Stages\Exercise_14_01\Exercise_14_01.vcxproj", "{D32E182F-EE55-45A2-92CA-DE6A8190E08C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_14_02", "Chapter 14 The Tessellation Stages\Exercise_14_02\Exercise_14_02.vcxproj", "{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -551,6 +553,14 @@ Global
 		{D32E182F-EE55-45A2-92CA-DE6A8190E08C}.Release|x64.Build.0 = Release|x64
 		{D32E182F-EE55-45A2-92CA-DE6A8190E08C}.Release|x86.ActiveCfg = Release|Win32
 		{D32E182F-EE55-45A2-92CA-DE6A8190E08C}.Release|x86.Build.0 = Release|Win32
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Debug|x64.ActiveCfg = Debug|x64
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Debug|x64.Build.0 = Debug|x64
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Debug|x86.ActiveCfg = Debug|Win32
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Debug|x86.Build.0 = Debug|Win32
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Release|x64.ActiveCfg = Release|x64
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Release|x64.Build.0 = Release|x64
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Release|x86.ActiveCfg = Release|Win32
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -606,6 +616,7 @@ Global
 		{C16C7164-14DB-415D-A554-3051593CDE9B} = {9631415B-7EB4-4510-9576-9FC99ED6C964}
 		{79C3913C-11B3-412E-9729-9DE24E162867} = {9631415B-7EB4-4510-9576-9FC99ED6C964}
 		{D32E182F-EE55-45A2-92CA-DE6A8190E08C} = {3240EC26-2473-457B-AA50-C239819B5716}
+		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB} = {3240EC26-2473-457B-AA50-C239819B5716}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60DAF673-9108-4394-9DAC-E93E4555DC7D}
