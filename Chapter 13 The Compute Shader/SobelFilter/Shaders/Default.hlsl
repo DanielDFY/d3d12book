@@ -32,7 +32,7 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 
-// Constant data that varies per frame.
+// Constant data that varies per object.
 /*
 cbuffer cbPerObject : register(b0)
 {
@@ -54,7 +54,7 @@ struct ObjectConstants {
 
 ConstantBuffer<ObjectConstants> gObjectConstants : register(b0);
 
-// Constant data that varies per material.
+// Constant data that varies per frame.
 /*
 cbuffer cbPass : register(b1)
 {
