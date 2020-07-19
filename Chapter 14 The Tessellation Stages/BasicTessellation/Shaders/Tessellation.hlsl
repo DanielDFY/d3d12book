@@ -32,7 +32,7 @@ struct ObjectConstants {
 
 ConstantBuffer<ObjectConstants> gObjectConstants : register(b0);
 
-// Constant data that varies per material.
+// Constant data that varies per frame.
 /*
 cbuffer cbPass : register(b1)
 {

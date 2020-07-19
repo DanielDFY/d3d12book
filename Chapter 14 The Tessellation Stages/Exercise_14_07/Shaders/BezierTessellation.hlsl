@@ -6,6 +6,18 @@
 
 // Update to Shader Model 5.1
 
+#ifndef NUM_DIR_LIGHTS
+    #define NUM_DIR_LIGHTS 3
+#endif
+
+#ifndef NUM_DIR_LIGHTS
+    #define NUM_DIR_LIGHTS 0
+#endif
+
+#ifndef NUM_DIR_LIGHTS
+    #define NUM_DIR_LIGHTS 0
+#endif
+
  // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
 
@@ -144,7 +156,9 @@ struct PatchTess
 	float InsideTess[2] : SV_InsideTessFactor;
 };
 
-PatchTess ConstantHS(InputPatch<VertexOut, 16> patch, uint patchID : SV_PrimitiveID)
+// Modify: now only use 9 control points
+
+PatchTess ConstantHS(InputPatch<VertexOut, 9> patch, uint patchID : SV_PrimitiveID)
 {
 	PatchTess pt;
 	
@@ -171,10 +185,10 @@ struct HullOut
 [domain("quad")]
 [partitioning("integer")]
 [outputtopology("triangle_cw")]
-[outputcontrolpoints(16)]
+[outputcontrolpoints(9)]
 [patchconstantfunc("ConstantHS")]
 [maxtessfactor(64.0f)]
-HullOut HS(InputPatch<VertexOut, 16> p, 
+HullOut HS(InputPatch<VertexOut, 9> p, 
            uint i : SV_OutputControlPointID,
            uint patchId : SV_PrimitiveID)
 {
@@ -187,38 +201,38 @@ HullOut HS(InputPatch<VertexOut, 16> p,
 
 struct DomainOut
 {
-	float4 PosH : SV_POSITION;
+    float4 PosH   : SV_POSITION;
+    float3 PosW   : POSITION;
+    float3 Normal : NORMAL;
+    float2 TexC   : TEXCOORD;
 };
 
-float4 BernsteinBasis(float t)
+float3 BernsteinBasis(float t)
 {
     float invT = 1.0f - t;
 
-    return float4( invT * invT * invT,
-                   3.0f * t * invT * invT,
-                   3.0f * t * t * invT,
-                   t * t * t );
+    return float3( invT * invT ,
+                   2.0f * t * invT ,
+                   t * t );
 }
 
-float3 CubicBezierSum(const OutputPatch<HullOut, 16> bezpatch, float4 basisU, float4 basisV)
+float3 CubicBezierSum(const OutputPatch<HullOut, 9> bezpatch, float3 basisU, float3 basisV)
 {
     float3 sum = float3(0.0f, 0.0f, 0.0f);
-    sum  = basisV.x * (basisU.x*bezpatch[0].PosL  + basisU.y*bezpatch[1].PosL  + basisU.z*bezpatch[2].PosL  + basisU.w*bezpatch[3].PosL );
-    sum += basisV.y * (basisU.x*bezpatch[4].PosL  + basisU.y*bezpatch[5].PosL  + basisU.z*bezpatch[6].PosL  + basisU.w*bezpatch[7].PosL );
-    sum += basisV.z * (basisU.x*bezpatch[8].PosL  + basisU.y*bezpatch[9].PosL  + basisU.z*bezpatch[10].PosL + basisU.w*bezpatch[11].PosL);
-    sum += basisV.w * (basisU.x*bezpatch[12].PosL + basisU.y*bezpatch[13].PosL + basisU.z*bezpatch[14].PosL + basisU.w*bezpatch[15].PosL);
+    sum  = basisV.x * (basisU.x*bezpatch[0].PosL  + basisU.y*bezpatch[1].PosL  + basisU.z*bezpatch[2].PosL );
+    sum += basisV.y * (basisU.x*bezpatch[3].PosL  + basisU.y*bezpatch[4].PosL  + basisU.z*bezpatch[5].PosL );
+    sum += basisV.z * (basisU.x*bezpatch[6].PosL  + basisU.y*bezpatch[7].PosL  + basisU.z*bezpatch[8].PosL);
 
     return sum;
 }
 
-float4 dBernsteinBasis(float t)
+float3 dBernsteinBasis(float t)
 {
     float invT = 1.0f - t;
 
-    return float4( -3 * invT * invT,
-                   3 * invT * invT - 6 * t * invT,
-                   6 * t * invT - 3 * t * t,
-                   3 * t * t );
+    return float3( -2.0f * invT,
+                   2.0f * (invT - t),
+                   2.0f * t );
 }
 
 // The domain shader is called for every vertex created by the tessellator.  
@@ -226,22 +240,58 @@ float4 dBernsteinBasis(float t)
 [domain("quad")]
 DomainOut DS(PatchTess patchTess, 
              float2 uv : SV_DomainLocation, 
-             const OutputPatch<HullOut, 16> bezPatch)
+             const OutputPatch<HullOut, 9> bezPatch)
 {
 	DomainOut dout;
 	
-	float4 basisU = BernsteinBasis(uv.x);
-	float4 basisV = BernsteinBasis(uv.y);
+	float3 basisU = BernsteinBasis(uv.x);
+	float3 basisV = BernsteinBasis(uv.y);
 
 	float3 p  = CubicBezierSum(bezPatch, basisU, basisV);
+
+    // compute partial derivatives of u and v
+    float3 dBasisU = dBernsteinBasis(uv.x);
+    float3 dBasisV = dBernsteinBasis(uv.y);
+
+    // compute tangent directions of u and v
+    float3 dpdu = CubicBezierSum(bezPatch, dBasisU, basisV);
+    float3 dpdv = CubicBezierSum(bezPatch, basisU, dBasisV);
+
+    // compute normal direction
+    float3 normal = cross(dpdu, dpdv);
 	
-	float4 posW = mul(float4(p, 1.0f), gObjectConstants.gWorld);
-	dout.PosH = mul(posW, gPassConstants.gViewProj);
-	
-	return dout;
+    dout.PosW = mul(float4(p, 1.0f), gObjectConstants.gWorld).xyz;
+    dout.PosH = mul(float4(dout.PosW, 1.0), gPassConstants.gViewProj);
+    dout.Normal = mul(float4(normal, 1.0f), gObjectConstants.gWorld).xyz;
+
+    float4 texC = mul(float4(uv, 0.0, 1.0), gObjectConstants.gTexTransform);
+    dout.TexC = mul(texC, gMaterialConstants.gMatTransform).xy;
+
+    return dout;
 }
 
 float4 PS(DomainOut pin) : SV_Target
 {
-    return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gMaterialConstants.gDiffuseAlbedo;
+
+    // Interpolating normal can unnormalize it, so renormalize it.
+    pin.Normal = normalize(pin.Normal);
+
+    // Vector from point being lit to eye. 
+    float3 toEyeW = normalize(gPassConstants.gEyePosW - pin.PosW);
+
+    // Light terms.
+    float4 ambient = gPassConstants.gAmbientLight * diffuseAlbedo;
+
+    const float shininess = 1.0f - gMaterialConstants.gRoughness;
+    Material mat = { diffuseAlbedo, gMaterialConstants.gFresnelR0, shininess };
+    float3 shadowFactor = 1.0f;
+    float4 directLight = ComputeLighting(gPassConstants.gLights, mat, pin.PosW, pin.Normal, toEyeW, shadowFactor);
+
+    float4 litColor = ambient + directLight;
+
+    // Common convention to take alpha from diffuse albedo.
+    litColor.a = diffuseAlbedo.a;
+
+    return litColor;
 }

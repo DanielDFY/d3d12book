@@ -65,16 +65,16 @@ public:
     BezierPatchApp& operator=(const BezierPatchApp& rhs) = delete;
     ~BezierPatchApp();
 
-    virtual bool Initialize()override;
+    bool Initialize() override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+    void OnResize() override;
+    void Update(const GameTimer& gt) override;
+    void Draw(const GameTimer& gt) override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    void OnMouseDown(WPARAM btnState, int x, int y) override;
+    void OnMouseUp(WPARAM btnState, int x, int y) override;
+    void OnMouseMove(WPARAM btnState, int x, int y) override;
 
     void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
@@ -97,7 +97,6 @@ private:
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 private:
-
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
@@ -136,9 +135,9 @@ private:
 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    float mTheta = 1.24f*XM_PI;
-    float mPhi = 0.42f*XM_PI;
-    float mRadius = 12.0f;
+    float mTheta = 1.04f*XM_PI;
+    float mPhi = 0.32f*XM_PI;
+    float mRadius = 45.0f;
 
     POINT mLastMousePos;
 };
@@ -464,27 +463,6 @@ void BezierPatchApp::UpdateMainPassCB(const GameTimer& gt)
 
 void BezierPatchApp::LoadTextures()
 {
-	auto bricksTex = std::make_unique<Texture>();
-	bricksTex->Name = "bricksTex";
-	bricksTex->Filename = L"../../Textures/bricks.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), bricksTex->Filename.c_str(),
-		bricksTex->Resource, bricksTex->UploadHeap));
-
-	auto checkboardTex = std::make_unique<Texture>();
-	checkboardTex->Name = "checkboardTex";
-	checkboardTex->Filename = L"../../Textures/checkboard.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), checkboardTex->Filename.c_str(),
-		checkboardTex->Resource, checkboardTex->UploadHeap));
-
-	auto iceTex = std::make_unique<Texture>();
-	iceTex->Name = "iceTex";
-	iceTex->Filename = L"../../Textures/ice.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), iceTex->Filename.c_str(),
-		iceTex->Resource, iceTex->UploadHeap));
-
 	auto white1x1Tex = std::make_unique<Texture>();
 	white1x1Tex->Name = "white1x1Tex";
 	white1x1Tex->Filename = L"../../Textures/white1x1.dds";
@@ -492,9 +470,6 @@ void BezierPatchApp::LoadTextures()
 		mCommandList.Get(), white1x1Tex->Filename.c_str(),
 		white1x1Tex->Resource, white1x1Tex->UploadHeap));
 
-	mTextures[bricksTex->Name] = std::move(bricksTex);
-	mTextures[checkboardTex->Name] = std::move(checkboardTex);
-	mTextures[iceTex->Name] = std::move(iceTex);
 	mTextures[white1x1Tex->Name] = std::move(white1x1Tex);
 }
 
@@ -544,7 +519,7 @@ void BezierPatchApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 4;
+	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -552,38 +527,15 @@ void BezierPatchApp::BuildDescriptorHeaps()
 	//
 	// Fill out the heap with actual descriptors.
 	//
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-	auto bricksTex = mTextures["bricksTex"]->Resource;
-	auto checkboardTex = mTextures["checkboardTex"]->Resource;
-	auto iceTex = mTextures["iceTex"]->Resource;
 	auto white1x1Tex = mTextures["white1x1Tex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = bricksTex->GetDesc().Format;
+	srvDesc.Format = white1x1Tex->GetDesc().Format;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = -1;
-	md3dDevice->CreateShaderResourceView(bricksTex.Get(), &srvDesc, hDescriptor);
-
-	// next descriptor
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	srvDesc.Format = checkboardTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(checkboardTex.Get(), &srvDesc, hDescriptor);
-
-	// next descriptor
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	srvDesc.Format = iceTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(iceTex.Get(), &srvDesc, hDescriptor);
-
-	// next descriptor
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	srvDesc.Format = white1x1Tex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(white1x1Tex.Get(), &srvDesc, hDescriptor);
+	md3dDevice->CreateShaderResourceView(white1x1Tex.Get(), &srvDesc, mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void BezierPatchApp::BuildShadersAndInputLayout()
@@ -601,39 +553,30 @@ void BezierPatchApp::BuildShadersAndInputLayout()
 
 void BezierPatchApp::BuildQuadPatchGeometry()
 {
-    std::array<XMFLOAT3,16> vertices =
+	// Modify: now use only 9 control points
+    std::array<XMFLOAT3,9> vertices =
 	{
 		// Row 0
 		XMFLOAT3(-10.0f, -10.0f, +15.0f),
-		XMFLOAT3(-5.0f,  0.0f, +15.0f),
-		XMFLOAT3(+5.0f,  0.0f, +15.0f),
+		XMFLOAT3(0.0f,  0.0f, +15.0f),
 		XMFLOAT3(+10.0f, 0.0f, +15.0f),
 
 		// Row 1
-		XMFLOAT3(-15.0f, 0.0f, +5.0f),
-		XMFLOAT3(-5.0f,  0.0f, +5.0f),
-		XMFLOAT3(+5.0f,  20.0f, +5.0f),
-		XMFLOAT3(+15.0f, 0.0f, +5.0f),
+		XMFLOAT3(-15.0f, 0.0f, 0.0f),
+		XMFLOAT3(0.0f,  20.0f, 0.0f),
+		XMFLOAT3(+15.0f, 0.0f, 0.0f),
 
 		// Row 2
-		XMFLOAT3(-15.0f, 0.0f, -5.0f),
-		XMFLOAT3(-5.0f,  0.0f, -5.0f),
-		XMFLOAT3(+5.0f,  0.0f, -5.0f),
-		XMFLOAT3(+15.0f, 0.0f, -5.0f),
-
-		// Row 3
 		XMFLOAT3(-10.0f, 10.0f, -15.0f),
-		XMFLOAT3(-5.0f,  0.0f, -15.0f),
-		XMFLOAT3(+5.0f,  0.0f, -15.0f),
+		XMFLOAT3(0.0f,  0.0f, -15.0f),
 		XMFLOAT3(+25.0f, 10.0f, -15.0f)
 	};
 
-	std::array<std::int16_t, 16> indices = 
+	std::array<std::int16_t, 9> indices = 
 	{ 
-		0, 1, 2, 3,
-		4, 5, 6, 7,
-		8, 9, 10, 11, 
-		12, 13, 14, 15
+		0, 1, 2,
+		3, 4, 5,
+		6, 7, 8
 	};
 
     const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
@@ -700,7 +643,7 @@ void BezierPatchApp::BuildPSOs()
 		mShaders["tessPS"]->GetBufferSize()
 	};
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.SampleMask = UINT_MAX;
@@ -727,7 +670,7 @@ void BezierPatchApp::BuildMaterials()
 	auto whiteMat = std::make_unique<Material>();
 	whiteMat->Name = "quadMat";
 	whiteMat->MatCBIndex = 0;
-	whiteMat->DiffuseSrvHeapIndex = 3;
+	whiteMat->DiffuseSrvHeapIndex = 0;
 	whiteMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	whiteMat->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	whiteMat->Roughness = 0.5f;
@@ -743,7 +686,7 @@ void BezierPatchApp::BuildRenderItems()
 	quadPatchRitem->ObjCBIndex = 0;
 	quadPatchRitem->Mat = mMaterials["whiteMat"].get();
 	quadPatchRitem->Geo = mGeometries["quadpatchGeo"].get();
-	quadPatchRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+	quadPatchRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST;
 	quadPatchRitem->IndexCount = quadPatchRitem->Geo->DrawArgs["quadpatch"].IndexCount;
 	quadPatchRitem->StartIndexLocation = quadPatchRitem->Geo->DrawArgs["quadpatch"].StartIndexLocation;
 	quadPatchRitem->BaseVertexLocation = quadPatchRitem->Geo->DrawArgs["quadpatch"].BaseVertexLocation;

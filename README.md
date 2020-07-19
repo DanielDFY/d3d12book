@@ -190,13 +190,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Tessellate an icosahedron into a sphere based on distance. Displace the generated vertices based on the radius of the sphere.
 
-  * [ ] *Exercise_14_07*
+  * [x] *Exercise_14_07*
 
-    > Redo the “Bézier Patch” demo to use a quadratic Bézier surface with nine control points.
-
-  * [ ] *Exercise_14_08*
-
-    > Modify the “Bézier Patch” demo to light and shade the Bézier surface. You will need to compute vertex normals in the domain shader. A normal at a vertex position can be found by taking the cross product of the partial derivatives at the position.
+    > Redo the “Bézier Patch” demo to use a quadratic Bézier surface with nine control points. Then  light and shade the Bézier surface. Vertex normals are computed in the domain shader. A normal at a vertex position can be found by taking the cross product of the partial derivatives at the position.
 
   * [ ] *Exercise_14_09*
 
