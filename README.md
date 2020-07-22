@@ -194,9 +194,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Redo the “Bézier Patch” demo to use a quadratic Bézier surface with nine control points. Then  light and shade the Bézier surface. Vertex normals are computed in the domain shader. A normal at a vertex position can be found by taking the cross product of the partial derivatives at the position.
 
-  * [ ] *Exercise_14_09*
+  * [x] *Exercise_14_09*
 
-    > Research and implement Bézier triangle patches.
+    > Research and implement Bézier triangle patches. Here I use Cubic Bézier triangle with 10 control points. [Bézier triangle](https://en.wikipedia.org/wiki/B%C3%A9zier_triangle)
 
 * ...
 
