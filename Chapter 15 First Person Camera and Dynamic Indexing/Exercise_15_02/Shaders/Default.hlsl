@@ -30,7 +30,6 @@ struct MaterialData
 	uint     MatPad2;
 };
 
-
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
 Texture2D gDiffuseMap[4] : register(t0);
@@ -38,7 +37,6 @@ Texture2D gDiffuseMap[4] : register(t0);
 // Put in space1, so the texture array does not overlap with these resources.  
 // The texture array will occupy registers t0, t1, ..., t3 in space0. 
 StructuredBuffer<MaterialData> gMaterialData : register(t0, space1);
-
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -130,6 +128,7 @@ struct VertexIn
 	float3 PosL    : POSITION;
     float3 NormalL : NORMAL;
 	float2 TexC    : TEXCOORD;
+    unsigned int MatIdx : MATINDEX;
 };
 
 struct VertexOut
@@ -138,6 +137,7 @@ struct VertexOut
     float3 PosW    : POSITION;
     float3 NormalW : NORMAL;
 	float2 TexC    : TEXCOORD;
+    unsigned int MatIdx : MATINDEX;
 };
 
 VertexOut VS(VertexIn vin)
@@ -160,7 +160,10 @@ VertexOut VS(VertexIn vin)
 	// Output vertex attributes for interpolation across triangle.
 	float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gObjectConstants.gTexTransform);
 	vout.TexC = mul(texC, matData.MatTransform).xy;
-	
+
+    // Modify: now add texture index data to vertex input
+    vout.MatIdx = vin.MatIdx;
+
     return vout;
 }
 
@@ -171,7 +174,8 @@ float4 PS(VertexOut pin) : SV_Target
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
 	float3 fresnelR0 = matData.FresnelR0;
 	float  roughness = matData.Roughness;
-	uint diffuseTexIndex = matData.DiffuseMapIndex;
+    // Modify: now use index data from vertex input
+	uint diffuseTexIndex = matData.DiffuseMapIndex + pin.MatIdx;
 
 	// Dynamically look up the texture in the array.
 	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamLinearWrap, pin.TexC);

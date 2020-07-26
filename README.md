@@ -42,6 +42,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 14 The Tessellation Stages
   * *BasicTessellation* : Submit a quad patch to the rendering pipeline, tessellate it based on the distance from the camera, and displace the generated vertices by a mathematic function that is similar to the one we have been using for “hills”.
   * *BezierPatch* : Submit a quad patch to the rendering pipeline, tessellate it and displace the generated vertices using cubic Bézier function.
+* Chapter 15 First Person Camera and Dynamic Indexing
+  * *CameraAndDynamicIndexing* : Replace former manual camera settings with a new camera class.
 * ...
 
 
@@ -197,6 +199,14 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * [x] *Exercise_14_09*
 
     > Research and implement Bézier triangle patches. Here I use Cubic Bézier triangle with 10 control points. [Bézier triangle](https://en.wikipedia.org/wiki/B%C3%A9zier_triangle)
+
+* Chapter 15 First Person Camera and Dynamic Indexing
+
+  * [x] *Exercise_15_02*
+
+    > Modify the camera demo to support rolling, by which the camera rotates around its look vector.
+    >
+    > Besides, create a single mesh that stores the geometry for the five boxes at the different positions, and create a single render-item for the five boxes. Add an additional field to the vertex structure that is an index to the texture to use. Bind all five textures to the pipeline once per frame, and use the vertex structure index to select the texture to use in the pixel shader. So that we can draw five boxes with five different textures with one draw call.
 
 * ...
 

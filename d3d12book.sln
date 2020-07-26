@@ -151,6 +151,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_14_07", "Chapter 1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_14_09", "Chapter 14 The Tessellation Stages\Exercise_14_09\Exercise_14_09.vcxproj", "{91247A29-44DA-49B0-8C36-FB6FC05C77D1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercise_15_02", "Chapter 15 First Person Camera and Dynamic Indexing\Exercise_15_02\Exercise_15_02.vcxproj", "{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -581,6 +583,14 @@ Global
 		{91247A29-44DA-49B0-8C36-FB6FC05C77D1}.Release|x64.Build.0 = Release|x64
 		{91247A29-44DA-49B0-8C36-FB6FC05C77D1}.Release|x86.ActiveCfg = Release|Win32
 		{91247A29-44DA-49B0-8C36-FB6FC05C77D1}.Release|x86.Build.0 = Release|Win32
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Debug|x64.ActiveCfg = Debug|x64
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Debug|x64.Build.0 = Debug|x64
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Debug|x86.ActiveCfg = Debug|Win32
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Debug|x86.Build.0 = Debug|Win32
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Release|x64.ActiveCfg = Release|x64
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Release|x64.Build.0 = Release|x64
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Release|x86.ActiveCfg = Release|Win32
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -639,6 +649,7 @@ Global
 		{1A9AD1CC-0504-4890-BA90-05D0B1A271EB} = {3240EC26-2473-457B-AA50-C239819B5716}
 		{C8F5DCF3-79C9-4C59-98D6-340D80BC198E} = {3240EC26-2473-457B-AA50-C239819B5716}
 		{91247A29-44DA-49B0-8C36-FB6FC05C77D1} = {3240EC26-2473-457B-AA50-C239819B5716}
+		{0D70E8A9-7C8A-4AF7-94EF-CF26F1053C57} = {F9ED4B41-BA87-4D61-8B43-66642A0B1B0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60DAF673-9108-4394-9DAC-E93E4555DC7D}

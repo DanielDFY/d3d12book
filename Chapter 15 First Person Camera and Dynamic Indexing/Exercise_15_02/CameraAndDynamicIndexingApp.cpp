@@ -2,13 +2,11 @@
 // CameraAndDynamicIndexingApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
-// Exercise_15_02 CameraAndDynamicIndexingApp.cpp modified by DanielDFY
-
 #include "../../Common/d3dApp.h"
 #include "../../Common/MathHelper.h"
 #include "../../Common/UploadBuffer.h"
 #include "../../Common/GeometryGenerator.h"
-#include "../../Common/Camera.h"
+#include "Camera.h"
 #include "FrameResource.h"
 
 using Microsoft::WRL::ComPtr;
@@ -94,6 +92,7 @@ private:
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 private:
+
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
@@ -340,6 +339,13 @@ void CameraAndDynamicIndexingApp::OnKeyboardInput(const GameTimer& gt)
 	if(GetAsyncKeyState('D') & 0x8000)
 		mCamera.Strafe(10.0f*dt);
 
+	// Modify: add rolling
+	if (GetAsyncKeyState('Q') & 0x8000)
+		mCamera.Roll(-5.0f * dt);
+
+	if (GetAsyncKeyState('E') & 0x8000)
+		mCamera.Roll(5.0f * dt);
+
 	mCamera.UpdateViewMatrix();
 }
  
@@ -458,23 +464,56 @@ void CameraAndDynamicIndexingApp::LoadTextures()
 		mCommandList.Get(), tileTex->Filename.c_str(),
 		tileTex->Resource, tileTex->UploadHeap));
 
-	auto crateTex = std::make_unique<Texture>();
-	crateTex->Name = "crateTex";
-	crateTex->Filename = L"../../Textures/WoodCrate01.dds";
+	auto crateTex0 = std::make_unique<Texture>();
+	crateTex0->Name = "crateTex0";
+	crateTex0->Filename = L"../../Textures/WoodCrate01.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), crateTex->Filename.c_str(),
-		crateTex->Resource, crateTex->UploadHeap));
+		mCommandList.Get(), crateTex0->Filename.c_str(),
+		crateTex0->Resource, crateTex0->UploadHeap));
+
+	auto crateTex1 = std::make_unique<Texture>();
+	crateTex1->Name = "crateTex1";
+	crateTex1->Filename = L"../../Textures/WoodCrate02.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), crateTex1->Filename.c_str(),
+		crateTex1->Resource, crateTex1->UploadHeap));
+
+	auto crateTex2 = std::make_unique<Texture>();
+	crateTex2->Name = "crateTex2";
+	crateTex2->Filename = L"../../Textures/checkboard.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), crateTex2->Filename.c_str(),
+		crateTex2->Resource, crateTex2->UploadHeap));
+
+	auto crateTex3= std::make_unique<Texture>();
+	crateTex3->Name = "crateTex3";
+	crateTex3->Filename = L"../../Textures/grass.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), crateTex3->Filename.c_str(),
+		crateTex3->Resource, crateTex3->UploadHeap));
+
+	auto crateTex4 = std::make_unique<Texture>();
+	crateTex4->Name = "crateTex4";
+	crateTex4->Filename = L"../../Textures/ice.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), crateTex4->Filename.c_str(),
+		crateTex4->Resource, crateTex4->UploadHeap));
 
 	mTextures[bricksTex->Name] = std::move(bricksTex);
 	mTextures[stoneTex->Name] = std::move(stoneTex);
 	mTextures[tileTex->Name] = std::move(tileTex);
-	mTextures[crateTex->Name] = std::move(crateTex);
+	mTextures[crateTex0->Name] = std::move(crateTex0);
+	mTextures[crateTex1->Name] = std::move(crateTex1);
+	mTextures[crateTex2->Name] = std::move(crateTex2);
+	mTextures[crateTex3->Name] = std::move(crateTex3);
+	mTextures[crateTex4->Name] = std::move(crateTex4);
 }
 
 void CameraAndDynamicIndexingApp::BuildRootSignature()
 {
+	// Modify: now there are 8 different textures
 	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 0);
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0, 0);
 
     // Root parameter can be a table, root descriptor or root constants.
     CD3DX12_ROOT_PARAMETER slotRootParameter[4];
@@ -518,7 +557,7 @@ void CameraAndDynamicIndexingApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 4;
+	srvHeapDesc.NumDescriptors = 8;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -531,7 +570,12 @@ void CameraAndDynamicIndexingApp::BuildDescriptorHeaps()
 	auto bricksTex = mTextures["bricksTex"]->Resource;
 	auto stoneTex = mTextures["stoneTex"]->Resource;
 	auto tileTex = mTextures["tileTex"]->Resource;
-	auto crateTex = mTextures["crateTex"]->Resource;
+	// Modify: add extra textures for crate
+	auto crateTex0 = mTextures["crateTex0"]->Resource;
+	auto crateTex1 = mTextures["crateTex1"]->Resource;
+	auto crateTex2 = mTextures["crateTex2"]->Resource;
+	auto crateTex3 = mTextures["crateTex3"]->Resource;
+	auto crateTex4 = mTextures["crateTex4"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -559,9 +603,37 @@ void CameraAndDynamicIndexingApp::BuildDescriptorHeaps()
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = crateTex->GetDesc().Format;
-	srvDesc.Texture2D.MipLevels = crateTex->GetDesc().MipLevels;
-	md3dDevice->CreateShaderResourceView(crateTex.Get(), &srvDesc, hDescriptor);
+	srvDesc.Format = crateTex0->GetDesc().Format;
+	srvDesc.Texture2D.MipLevels = crateTex0->GetDesc().MipLevels;
+	md3dDevice->CreateShaderResourceView(crateTex0.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = crateTex1->GetDesc().Format;
+	srvDesc.Texture2D.MipLevels = crateTex1->GetDesc().MipLevels;
+	md3dDevice->CreateShaderResourceView(crateTex1.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = crateTex2->GetDesc().Format;
+	srvDesc.Texture2D.MipLevels = crateTex2->GetDesc().MipLevels;
+	md3dDevice->CreateShaderResourceView(crateTex2.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = crateTex3->GetDesc().Format;
+	srvDesc.Texture2D.MipLevels = crateTex3->GetDesc().MipLevels;
+	md3dDevice->CreateShaderResourceView(crateTex3.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = crateTex4->GetDesc().Format;
+	srvDesc.Texture2D.MipLevels = crateTex4->GetDesc().MipLevels;
+	md3dDevice->CreateShaderResourceView(crateTex4.Get(), &srvDesc, hDescriptor);
 }
 
 void CameraAndDynamicIndexingApp::BuildShadersAndInputLayout()
@@ -572,19 +644,22 @@ void CameraAndDynamicIndexingApp::BuildShadersAndInputLayout()
 		NULL, NULL
 	};
 
-	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders/Default.hlsl", nullptr, "PS", "ps_5_1");
 	
     mInputLayout =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	   { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+    		// Modify: add texture index data to vertex input
+		{ "MATINDEX", 0, DXGI_FORMAT_R32_UINT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
     };
 }
 
 void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 {
+	// Modify: now render 5 boxes instead of 1 box
     GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
@@ -597,34 +672,34 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 	//
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
-	UINT boxVertexOffset = 0;
-	UINT gridVertexOffset = (UINT)box.Vertices.size();
-	UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
-	UINT cylinderVertexOffset = sphereVertexOffset + (UINT)sphere.Vertices.size();
+	UINT boxesVertexOffset = 0;
+	UINT gridVertexOffset = static_cast<UINT>(box.Vertices.size()) * 5;
+	UINT sphereVertexOffset = gridVertexOffset + static_cast<UINT>(grid.Vertices.size());
+	UINT cylinderVertexOffset = sphereVertexOffset + static_cast<UINT>(sphere.Vertices.size());
 
 	// Cache the starting index for each object in the concatenated index buffer.
-	UINT boxIndexOffset = 0;
-	UINT gridIndexOffset = (UINT)box.Indices32.size();
-	UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
-	UINT cylinderIndexOffset = sphereIndexOffset + (UINT)sphere.Indices32.size();
+	UINT boxesIndexOffset = 0;
+	UINT gridIndexOffset = static_cast<UINT>(box.Indices32.size()) * 5;
+	UINT sphereIndexOffset = gridIndexOffset + static_cast<UINT>(grid.Indices32.size());
+	UINT cylinderIndexOffset = sphereIndexOffset + static_cast<UINT>(sphere.Indices32.size());
 
-	SubmeshGeometry boxSubmesh;
-	boxSubmesh.IndexCount = (UINT)box.Indices32.size();
-	boxSubmesh.StartIndexLocation = boxIndexOffset;
-	boxSubmesh.BaseVertexLocation = boxVertexOffset;
+	SubmeshGeometry boxesSubmesh;
+	boxesSubmesh.IndexCount = static_cast<UINT>(box.Indices32.size()) * 5;
+	boxesSubmesh.StartIndexLocation = boxesIndexOffset;
+	boxesSubmesh.BaseVertexLocation = boxesVertexOffset;
 
 	SubmeshGeometry gridSubmesh;
-	gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
+	gridSubmesh.IndexCount = static_cast<UINT>(grid.Indices32.size());
 	gridSubmesh.StartIndexLocation = gridIndexOffset;
 	gridSubmesh.BaseVertexLocation = gridVertexOffset;
 
 	SubmeshGeometry sphereSubmesh;
-	sphereSubmesh.IndexCount = (UINT)sphere.Indices32.size();
+	sphereSubmesh.IndexCount = static_cast<UINT>(sphere.Indices32.size());
 	sphereSubmesh.StartIndexLocation = sphereIndexOffset;
 	sphereSubmesh.BaseVertexLocation = sphereVertexOffset;
 
 	SubmeshGeometry cylinderSubmesh;
-	cylinderSubmesh.IndexCount = (UINT)cylinder.Indices32.size();
+	cylinderSubmesh.IndexCount = static_cast<UINT>(cylinder.Indices32.size());
 	cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
 	cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;
 
@@ -634,7 +709,7 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 	//
 
 	auto totalVertexCount =
-		box.Vertices.size() +
+		box.Vertices.size() * 5 +
 		grid.Vertices.size() +
 		sphere.Vertices.size() +
 		cylinder.Vertices.size();
@@ -642,11 +717,15 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 	std::vector<Vertex> vertices(totalVertexCount);
 
 	UINT k = 0;
-	for(size_t i = 0; i < box.Vertices.size(); ++i, ++k)
-	{
-		vertices[k].Pos = box.Vertices[i].Position;
-		vertices[k].Normal = box.Vertices[i].Normal;
-		vertices[k].TexC = box.Vertices[i].TexC;
+	for (UINT boxIdx = 0; boxIdx < 5; ++boxIdx) {
+		for (size_t i = 0; i < box.Vertices.size(); ++i, ++k) {
+			vertices[k].Pos = box.Vertices[i].Position;
+			// separate different boxes
+			vertices[k].Pos.z += (-5 + boxIdx * 2.5f);
+			vertices[k].Normal = box.Vertices[i].Normal;
+			vertices[k].TexC = box.Vertices[i].TexC;
+			vertices[k].MatIdx = boxIdx;
+		}
 	}
 
 	for(size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
@@ -654,6 +733,7 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 		vertices[k].Pos = grid.Vertices[i].Position;
 		vertices[k].Normal = grid.Vertices[i].Normal;
 		vertices[k].TexC = grid.Vertices[i].TexC;
+		vertices[k].MatIdx = 0;
 	}
 
 	for(size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
@@ -661,6 +741,7 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 		vertices[k].Pos = sphere.Vertices[i].Position;
 		vertices[k].Normal = sphere.Vertices[i].Normal;
 		vertices[k].TexC = sphere.Vertices[i].TexC;
+		vertices[k].MatIdx = 0;
 	}
 
 	for(size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
@@ -668,16 +749,22 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 		vertices[k].Pos = cylinder.Vertices[i].Position;
 		vertices[k].Normal = cylinder.Vertices[i].Normal;
 		vertices[k].TexC = cylinder.Vertices[i].TexC;
+		vertices[k].MatIdx = 0;
 	}
 
 	std::vector<std::uint16_t> indices;
-	indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
+	for (uint16_t i = 0; i < 5; ++i) {
+		std::vector<uint16_t> boxIndices(box.GetIndices16());
+		uint16_t offset = static_cast<uint16_t>(box.Vertices.size()) * i;
+		for (auto& boxIndex : boxIndices) boxIndex += offset;
+		indices.insert(indices.end(), std::begin(boxIndices), std::end(boxIndices));
+	}
 	indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
 	indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
 	indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
 
-    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-    const UINT ibByteSize = (UINT)indices.size()  * sizeof(std::uint16_t);
+    const UINT vbByteSize = static_cast<UINT>(vertices.size()) * sizeof(Vertex);
+    const UINT ibByteSize = static_cast<UINT>(indices.size()) * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "shapeGeo";
@@ -699,7 +786,7 @@ void CameraAndDynamicIndexingApp::BuildShapeGeometry()
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
-	geo->DrawArgs["box"] = boxSubmesh;
+	geo->DrawArgs["boxes"] = boxesSubmesh;
 	geo->DrawArgs["grid"] = gridSubmesh;
 	geo->DrawArgs["sphere"] = sphereSubmesh;
 	geo->DrawArgs["cylinder"] = cylinderSubmesh;
@@ -791,17 +878,17 @@ void CameraAndDynamicIndexingApp::BuildMaterials()
 
 void CameraAndDynamicIndexingApp::BuildRenderItems()
 {
-	auto boxRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-	XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	boxRitem->ObjCBIndex = 0;
-	boxRitem->Mat = mMaterials["crate0"].get();
-	boxRitem->Geo = mGeometries["shapeGeo"].get();
-	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
-	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
-	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
-	mAllRitems.push_back(std::move(boxRitem));
+	auto boxesRitem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&boxesRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+	XMStoreFloat4x4(&boxesRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	boxesRitem->ObjCBIndex = 0;
+	boxesRitem->Mat = mMaterials["crate0"].get();
+	boxesRitem->Geo = mGeometries["shapeGeo"].get();
+	boxesRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	boxesRitem->IndexCount = boxesRitem->Geo->DrawArgs["boxes"].IndexCount;
+	boxesRitem->StartIndexLocation = boxesRitem->Geo->DrawArgs["boxes"].StartIndexLocation;
+	boxesRitem->BaseVertexLocation = boxesRitem->Geo->DrawArgs["boxes"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(boxesRitem));
 
     auto gridRitem = std::make_unique<RenderItem>();
     gridRitem->World = MathHelper::Identity4x4();
