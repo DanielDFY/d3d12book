@@ -204,9 +204,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
   * [x] *Exercise_15_02*
 
-    > Modify the camera demo to support rolling, by which the camera rotates around its look vector.
+    > Modify the camera demo to support rolling, by which the camera rotates around its `lookAt` vector (Press Q/E to roll counterclockwise/clockwise). Besides, create a single mesh that stores the geometry for the five boxes at the different positions, and create a single render-item for the five boxes. Add an additional field to the vertex structure that is an index to the texture to use. Bind all five textures to the pipeline once per frame, and use the vertex structure index to select the texture to use in the pixel shader. So that we can draw five boxes with five different textures with one draw call.
     >
-    > Besides, create a single mesh that stores the geometry for the five boxes at the different positions, and create a single render-item for the five boxes. Add an additional field to the vertex structure that is an index to the texture to use. Bind all five textures to the pipeline once per frame, and use the vertex structure index to select the texture to use in the pixel shader. So that we can draw five boxes with five different textures with one draw call.
-
+  
 * ...
 
