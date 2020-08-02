@@ -46,6 +46,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *CameraAndDynamicIndexing* : Replace former manual camera settings with a new camera class.
 * Chapter 16 Instancing and Frustum Culling
   * *InstancingAndCulling* : Use instancing to render multiple skulls and use frustum culling to reduce draw calls.
+* Chapter 17 Picking
+  * *Picking* : renders a car mesh and allows the user to pick a triangle by pressing the right mouse button, and the selected triangle is rendered using a *highlight* material.
 * ...
 
 
@@ -214,6 +216,12 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * [x] *Exercise_16_01*
 
     > Modify the *Instancing and Culling* demo to use bounding spheres instead of bounding boxes. For convenience, change field `BoundingBox` of `SubmeshGeometry`  into `BoundingSphere`. (`d3dUtil.h` under directory `Common modified`)
+
+* Chapter 17 Picking
+
+  * [ ] *Exercise_17_01*
+
+    > Modify the “Picking” demo to use a bounding sphere for the mesh instead of an AABB. Modification is similar to the exercise in last chapter.
 
 * ...
 
