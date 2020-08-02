@@ -2,11 +2,13 @@
 // InstancingAndCullingApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
-#include "../../Common/d3dApp.h"
-#include "../../Common/MathHelper.h"
-#include "../../Common/UploadBuffer.h"
-#include "../../Common/GeometryGenerator.h"
-#include "../../Common/Camera.h"
+// Exercise_16_01 InstancingAndCullingApp.cpp modified by DanielDFY
+
+#include "Common modified/d3dApp.h"
+#include "Common modified/MathHelper.h"
+#include "Common modified/UploadBuffer.h"
+#include "Common modified/GeometryGenerator.h"
+#include "Common modified/Camera.h"
 #include "FrameResource.h"
 
 using Microsoft::WRL::ComPtr;
@@ -47,7 +49,8 @@ struct RenderItem
     // Primitive topology.
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	BoundingBox Bounds;
+	// Modify: now using bounding sphere instead of bounding box
+	BoundingSphere Bounds;
 	std::vector<InstanceData> Instances;
 
     // DrawIndexedInstanced parameters.
@@ -65,16 +68,16 @@ public:
     InstancingAndCullingApp& operator=(const InstancingAndCullingApp& rhs) = delete;
     ~InstancingAndCullingApp();
 
-    virtual bool Initialize()override;
+	bool Initialize() override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+    void OnResize() override;
+    void Update(const GameTimer& gt) override;
+    void Draw(const GameTimer& gt) override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    void OnMouseDown(WPARAM btnState, int x, int y) override;
+    void OnMouseUp(WPARAM btnState, int x, int y) override;
+    void OnMouseMove(WPARAM btnState, int x, int y) override;
 
     void OnKeyboardInput(const GameTimer& gt);
 	void AnimateMaterials(const GameTimer& gt);
@@ -723,9 +726,10 @@ void InstancingAndCullingApp::BuildSkullGeometry()
 		vMax = XMVectorMax(vMax, P);
 	}
 
-	BoundingBox bounds;
+	// Modify: now using bounding sphere instead of bounding box
+	BoundingSphere bounds;
 	XMStoreFloat3(&bounds.Center, 0.5f*(vMin + vMax));
-	XMStoreFloat3(&bounds.Extents, 0.5f*(vMax - vMin));
+	XMStoreFloat(&bounds.Radius, XMVector3Length(0.5f*(vMax - vMin)));
 
 	fin >> ignore;
 	fin >> ignore;

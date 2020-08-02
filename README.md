@@ -44,6 +44,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *BezierPatch* : Submit a quad patch to the rendering pipeline, tessellate it and displace the generated vertices using cubic Bézier function.
 * Chapter 15 First Person Camera and Dynamic Indexing
   * *CameraAndDynamicIndexing* : Replace former manual camera settings with a new camera class.
+* Chapter 16 Instancing and Frustum Culling
+  * *InstancingAndCulling* : Use instancing to render multiple skulls and use frustum culling to reduce draw calls.
 * ...
 
 
@@ -207,5 +209,11 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
     > Modify the camera demo to support rolling, by which the camera rotates around its `lookAt` vector (Press Q/E to roll counterclockwise/clockwise). Besides, create a single mesh that stores the geometry for the five boxes at the different positions, and create a single render-item for the five boxes. Add an additional field to the vertex structure that is an index to the texture to use. Bind all five textures to the pipeline once per frame, and use the vertex structure index to select the texture to use in the pixel shader. So that we can draw five boxes with five different textures with one draw call.
     >
   
+* Chapter 16 Instancing and Frustum Culling
+
+  * [x] *Exercise_16_01*
+
+    > Modify the *Instancing and Culling* demo to use bounding spheres instead of bounding boxes. For convenience, change field `BoundingBox` of `SubmeshGeometry`  into `BoundingSphere`. (`d3dUtil.h` under directory `Common modified`)
+
 * ...
 
