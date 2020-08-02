@@ -219,7 +219,7 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
 * Chapter 17 Picking
 
-  * [ ] *Exercise_17_01*
+  * [x] *Exercise_17_01*
 
     > Modify the “Picking” demo to use a bounding sphere for the mesh instead of an AABB. Modification is similar to the exercise in last chapter.
 
