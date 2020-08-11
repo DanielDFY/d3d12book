@@ -48,6 +48,9 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
   * *InstancingAndCulling* : Use instancing to render multiple skulls and use frustum culling to reduce draw calls.
 * Chapter 17 Picking
   * *Picking* : renders a car mesh and allows the user to pick a triangle by pressing the right mouse button, and the selected triangle is rendered using a *highlight* material.
+* Chapter 18 Cube Mapping
+  * *CubeMap* : This demo is based on the *TexColumns* demo, adding a background texture by cube mapping. All the objects in the scene share the same environment map.
+  * *DynamicCube* :  Instead of a static background texture, build the cube map at runtime. That is, every frame the camera is positioned in the scene that is to be the origin of the cube map, and then render the scene six times into each cube map face along each coordinate axis direction. Since the cube map is rebuilt every frame, it will capture animated objects in the environment, and the reflection will be animated as well.
 * ...
 
 
@@ -223,5 +226,11 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Modify the “Picking” demo to use a bounding sphere for the mesh instead of an AABB. Modification is similar to the exercise in last chapter.
 
-* ...
+* Chapter 18 Cube Mapping
+
+  * [x] *DynamicCubeMapGS*
+
+    > Use the geometry shader to render a cube map by drawing the scene only once. That is, we have bound a view to an array of render targets and a view to an array of depth stencil buffers to the OM stage, and we are going to render to each array slice simultaneously. Also add dielectric material to implement refraction on some objects.
+
+* [ ] ...
 

@@ -1,7 +1,3 @@
-//=============================================================================
-// Sky.fx by Frank Luna (C) 2011 All Rights Reserved.
-//=============================================================================
-
 // Include common HLSL code.
 #include "Common.hlsl"
 
@@ -26,10 +22,10 @@ VertexOut VS(VertexIn vin) {
 	float4 posW = mul(float4(vin.PosL, 1.0f), gObjectConstants.gWorld);
 
 	// Always center sky about camera.
-	posW.xyz += gPassConstants.gEyePosW;
+	posW.xyz += gPassConstants.gEyePosW[0].xyz;
 
 	// Set z = w so that z/w = 1 (i.e., skydome always on far plane).
-	vout.PosH = mul(posW, gPassConstants.gViewProj).xyww;
+	vout.PosH = mul(posW, gPassConstants.gViewProj[0]).xyww;
 
 	return vout;
 }

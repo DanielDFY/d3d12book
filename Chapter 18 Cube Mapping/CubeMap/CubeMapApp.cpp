@@ -736,7 +736,7 @@ void CubeMapApp::BuildShapeGeometry()
 
 void CubeMapApp::BuildSkullGeometry()
 {
-    std::ifstream fin("Models/skull.txt");
+    std::ifstream fin("../../Models/skull.txt");
 
     if (!fin)
     {
