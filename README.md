@@ -51,6 +51,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 * Chapter 18 Cube Mapping
   * *CubeMap* : This demo is based on the *TexColumns* demo, adding a background texture by cube mapping. All the objects in the scene share the same environment map.
   * *DynamicCube* :  Instead of a static background texture, build the cube map at runtime. That is, every frame the camera is positioned in the scene that is to be the origin of the cube map, and then render the scene six times into each cube map face along each coordinate axis direction. Since the cube map is rebuilt every frame, it will capture animated objects in the environment, and the reflection will be animated as well.
+* Chapter 19 Normal Mapping
+  * *NormalMap* : Implement normal mapping such that the fine details that show up in the texture map also show up in the lighting.
 * ...
 
 
@@ -232,5 +234,14 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 
     > Use the geometry shader to render a cube map by drawing the scene only once. That is, we have bound a view to an array of render targets and a view to an array of depth stencil buffers to the OM stage, and we are going to render to each array slice simultaneously. Also add dielectric material to implement refraction on some objects.
 
-* [ ] ...
+* Chapter 19 Normal Mapping
 
+  * [x] *Exercise_19_04*
+
+    > Instead of doing lighting in world space, we can transform the eye and light vector from world space into tangent space and do all the lighting calculations in that space. Modify the normal mapping shader to do the lighting calculations in tangent space. Sampling the cubemap for background still needs to be done in world space.
+
+  * [ ] *Exercise_19_05*
+
+    > Implement the ocean wave effect using the two ocean wave heightmaps (and corresponding normal maps).
+
+* ...

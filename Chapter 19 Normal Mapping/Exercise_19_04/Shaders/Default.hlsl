@@ -2,6 +2,8 @@
 // Default.hlsl by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
+// Exercise_19_04 Default.hlsl modified by DanielDFY
+
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
     #define NUM_DIR_LIGHTS 3
@@ -23,15 +25,16 @@ struct VertexIn
 	float3 PosL    : POSITION;
     float3 NormalL : NORMAL;
 	float2 TexC    : TEXCOORD;
-	float3 TangentU : TANGENT;
+	float3 TangentT : TANGENT;
 };
 
 struct VertexOut
 {
 	float4 PosH    : SV_POSITION;
-    float3 PosW    : POSITION;
-    float3 NormalW : NORMAL;
-	float3 TangentW : TANGENT;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float3 TangentW  : TANGENT;
+	float3 BinormalW : BINORMAL;
 	float2 TexC    : TEXCOORD;
 };
 
@@ -46,13 +49,17 @@ VertexOut VS(VertexIn vin)
     float4 posW = mul(float4(vin.PosL, 1.0f), gObjectConstants.gWorld);
     vout.PosW = posW.xyz;
 
+	// Transform to homogeneous clip space.
+	vout.PosH = mul(posW, gPassConstants.gViewProj);
+
     // Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
     vout.NormalW = mul(vin.NormalL, (float3x3)gObjectConstants.gWorld);
 	
-	vout.TangentW = mul(vin.TangentU, (float3x3)gObjectConstants.gWorld);
+	// Transfrom texture u-axis from texture space to world space
+	vout.TangentW = mul(vin.TangentT, (float3x3)gObjectConstants.gWorld);
 
-    // Transform to homogeneous clip space.
-    vout.PosH = mul(posW, gPassConstants.gViewProj);
+	// Get texture v-axis in world space
+	vout.BinormalW = cross(vout.TangentW, vout.NormalW);
 	
 	// Output vertex attributes for interpolation across triangle.
 	float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gObjectConstants.gTexTransform);
@@ -71,20 +78,36 @@ float4 PS(VertexOut pin) : SV_Target
 	uint diffuseMapIndex = matData.DiffuseMapIndex;
 	uint normalMapIndex = matData.NormalMapIndex;
 	
-	// Interpolating normal can unnormalize it, so renormalize it.
-    pin.NormalW = normalize(pin.NormalW);
-	
-	float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
-	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+	// Renormalize after interpolation.
+	float3 T = normalize(pin.TangentW);
+	float3 B = normalize(pin.BinormalW);
+	float3 N = normalize(pin.NormalW);
 
-	// Uncomment to turn off normal mapping.
-	//bumpedNormalW = pin.NormalW;
+	// Build space transformation matrices with TBN.
+	float3x3 textureToWorld = float3x3(T, B, N);
+	float3x3 worldToTexture = transpose(textureToWorld);
+
+	// Sample the normal map.
+	float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+	float3 bumpedNormalT = 2.0f * normalMapSample.rgb - 1.0f;
+	
+	// Vector from point being lit to eye. 
+	float3 toEyeW = normalize(gPassConstants.gEyePosW - pin.PosW);
+
+	// Transform to texture space to do lighting
+	float3 posT = mul(pin.PosW, worldToTexture);
+	float3 toEyeT = mul(toEyeW, worldToTexture);
+
+	Light lights[MaxLights];
+	int lightCount = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS;
+	for (int i = 0; i < lightCount; ++i) {
+		lights[i].Strength = gPassConstants.gLights[i].Strength;
+		lights[i].Direction = mul(gPassConstants.gLights[i].Direction, worldToTexture);
+		lights[i].Position = mul(gPassConstants.gLights[i].Position, worldToTexture);
+	}
 
 	// Dynamically look up the texture in the array.
 	diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
-
-    // Vector from point being lit to eye. 
-    float3 toEyeW = normalize(gPassConstants.gEyePosW - pin.PosW);
 
     // Light terms.
     float4 ambient = gPassConstants.gAmbientLight*diffuseAlbedo;
@@ -92,12 +115,12 @@ float4 PS(VertexOut pin) : SV_Target
     const float shininess = (1.0f - roughness) * normalMapSample.a;
     Material mat = { diffuseAlbedo, fresnelR0, shininess };
     float3 shadowFactor = 1.0f;
-    float4 directLight = ComputeLighting(gPassConstants.gLights, mat, pin.PosW,
-        bumpedNormalW, toEyeW, shadowFactor);
+    float4 directLight = ComputeLighting(lights, mat, posT, bumpedNormalT, toEyeT, shadowFactor);
 
     float4 litColor = ambient + directLight;
 
 	// Add in specular reflections.
+	float3 bumpedNormalW = mul(bumpedNormalT, textureToWorld);
 	float3 r = reflect(-toEyeW, bumpedNormalW);
 	float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
 	float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
