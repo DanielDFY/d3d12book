@@ -9,6 +9,8 @@ Shader Model is updated to 5.1 and some simple exercises may be omitted or merge
 **A yellow circle** may appear in figures below due to my **mouse click** captured by the screen recording software.
 
 
+Star this repo if you find it helpful :)
+
 
 ## Samples
 
